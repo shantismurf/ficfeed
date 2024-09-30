@@ -108,6 +108,7 @@ async function fetchMessages(start) {
   });
   if (start)
     console.log('Ready!');
+  setTimeout(fetchMessages, 60e3);
   return res;
 }
 
@@ -169,7 +170,6 @@ async function ao3api(link) {
 }
 
 getch().then(() => {
-  setInterval(fetchMessages, 60e3);
   fetchMessages(true);
 });
 
