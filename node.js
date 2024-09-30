@@ -48,7 +48,7 @@ async function fetchMessages(start) {
           body: JSON.stringify(
 						ao3.error ? {
 							embeds: [{
-                title: 'Work may be restricted. Data can not be retrieved. Click here to see work.',
+                title: 'Data could not be retrieved, Work may be restricted or could not be found.\nClick here to see work.',
                 url: `https://${msg[2]}/`,
                 description:
                   `Posted by <@${msg[0].author.id}> in https://discord.com/channels/${process.env.GUILD}/${msg[1]}/${msg[0].id}`,
@@ -71,8 +71,8 @@ async function fetchMessages(start) {
                 },
                 fields: [
                   {
-                    name: 'Published | Updated',
-                    value: (ao3.published + ' | ' + (ao3.status ?? '')).substring(0, 1024),
+                    name: 'Published' + (ao3.status ? ' | Updated' : ''),
+                    value: (ao3.published + (ao3.status ? ' | ' + ao3.status : '')).substring(0, 1024),
                     inline: true
                   },
                   {
