@@ -16,6 +16,7 @@ Discord bot AO3 link aggregator and embed written by geodebreaker
   - ```bash
     apt-get install node, npm
     npm i dotenv
-    node node.js```
+    node node.js
+    ```
 
 may not work, and if that happens, skill issue.
