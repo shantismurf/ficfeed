@@ -6,7 +6,6 @@ var msgurl = `https://discord.com/api/v10/channels/{}/messages?limit=30`;
 var getchurl = `https://discord.com/api/v10/guilds/${process.env.GUILD}/channels`;
 var seen = new Set();
 var chnames = (process.env.CHANNELS ?? '').split(',');
-var toamt = process.env.TIMEOUT ?? 60;
 // var ao3session;
 
 async function getmsg(c, i) {
@@ -33,6 +32,7 @@ async function fetchMessages(start) {
   var to = -1;
   newmsg.forEach(async msg => {
     seen.add(msg[0].id);
+    console.log(m);
     if (!start) {
 
       var ao3 = await ao3api('https://' + msg[2] + '/');
@@ -48,7 +48,7 @@ async function fetchMessages(start) {
           body: JSON.stringify(
 						ao3.error ? {
 							embeds: [{
-                title: 'Work may be restricted. Data can not be retrieved. Click here to see work.',
+                title: 'Work data can not be retrived. Click here to see work.',
                 url: `https://${msg[2]}/`,
                 description:
                   `Posted by <@${msg[0].author.id}> in https://discord.com/channels/${process.env.GUILD}/${msg[1]}/${msg[0].id}`,
@@ -66,13 +66,13 @@ async function fetchMessages(start) {
                   "Teen And Up Audiences": 0x008000, "Mature": 0xFFA500, "Explicit": 0xFF0000
                 })[ao3.rating],
                 author: {
-                  name: 'A work by ' + ao3.author,
+                  name: 'A Work by ' + ao3.author,
                   url: ao3.authorlink,
                 },
                 fields: [
                   {
                     name: 'Published | Updated',
-                    value: (ao3.published + ' | ' + (ao3.status ?? '')).substring(0, 1024),
+                    value: (ao3.published + ' | ' + (ao3.status ?? 'Never')).substring(0, 1024),
                     inline: true
                   },
                   {
@@ -97,8 +97,8 @@ async function fetchMessages(start) {
                   },
                 ],
                 footer: {
-                  text: ('Hits: ' + ao3.hits + ' | Kudos: ' + (ao3.kudos ?? 0) +
-                    ' | Comments: ' + (ao3.comments ?? 0)).substring(0, 1024)
+                  text: ('Hits: ' + ao3.hits + '\nKudos: ' + (ao3.kudos ?? 0) +
+                    '\nComments: ' + (ao3.comments ?? 0)).substring(0, 1024)
                 }
               }]
             }
@@ -110,7 +110,7 @@ async function fetchMessages(start) {
   });
   if (start)
     console.log('Ready!');
-  setTimeout(fetchMessages, toamt * 1e3);
+  setTimeout(fetchMessages, 60e3);
   return res;
 }
 
