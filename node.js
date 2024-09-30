@@ -6,6 +6,7 @@ var msgurl = `https://discord.com/api/v10/channels/{}/messages?limit=30`;
 var getchurl = `https://discord.com/api/v10/guilds/${process.env.GUILD}/channels`;
 var seen = new Set();
 var chnames = (process.env.CHANNELS ?? '').split(',');
+var toamt = process.env.TIMEOUT ?? 60;
 // var ao3session;
 
 async function getmsg(c, i) {
