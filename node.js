@@ -26,7 +26,7 @@ async function fetchMessages(start) {
   ))));
 
   var newmsg = res.filter(msg => !seen.has(msg[0].id)).map(msg => {
-    return msg.concat([(msg[0].content.match(/archiveofourown.org\/works\/\d{6,10}/g) ?? [])[0]]);
+    return msg.concat([(msg[0].content.match(/archiveofourown.org\/works\/\d{1,12}/g) ?? [])[0]]);
   }).filter(x => x[2] != undefined).sort((a, b) => new Date(a[0].timestamp).getTime() - new Date(b[0].timestamp).getTime());
   var to = -1;
   newmsg.forEach(async msg => {
@@ -169,7 +169,7 @@ async function ao3api(link) {
 }
 
 getch().then(() => {
-  setInterval(fetchMessages, 15e3);
+  setInterval(fetchMessages, 60e3);
   fetchMessages(true);
 });
 
