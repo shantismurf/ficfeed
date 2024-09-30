@@ -110,7 +110,7 @@ async function fetchMessages(start) {
   });
   if (start)
     console.log('Ready!');
-  setTimeout(fetchMessages, 60e3);
+  setTimeout(fetchMessages, toamt * 1e3);
   return res;
 }
 
