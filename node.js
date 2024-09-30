@@ -5,6 +5,7 @@ var sendchannel = '';
 var msgurl = `https://discord.com/api/v10/channels/{}/messages?limit=100`;
 var getchurl = `https://discord.com/api/v10/guilds/${process.env.GUILD}/channels`;
 var seen = new Set();
+var chnames = (process.env.CHANNELS ?? '').split(',');
 // var ao3session;
 
 async function getmsg(c, i) {
@@ -123,7 +124,7 @@ async function getch() {
   }).then(x => x.json());
   res = res.filter(x => x.type == 0);
   sendchannel = res.splice(res.findIndex(x => x.name == process.env.FEED), 1)[0].id;
-  channels = res.map(x => x.id);
+  channels = res.filter(x => chnames[0] == '' ? true : chnames.includes(x.name)).map(x => x.id);
   // console.log('Signing in...');
   // ao3session = await fetch("https://archiveofourown.org/users/login", {
   //   headers: {
