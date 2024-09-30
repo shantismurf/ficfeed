@@ -23,7 +23,7 @@ async function getmsg(c, i) {
 
 async function fetchMessages(start) {
   var res = [].concat(...(await Promise.all(channels.map((x, i) =>
-    new Promise(y => setTimeout(async () => y(await getmsg(x, i)), i * 6e3))
+    new Promise(y => setTimeout(async () => y(await getmsg(x, i)), i * 7e3))
   ))));
 
   var newmsg = res.filter(msg => !seen.has(msg[0].id)).map(msg => {
