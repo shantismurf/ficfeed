@@ -175,7 +175,7 @@ getch().then(() => {
   fetchMessages(true);
 });
 
-setInterval(getch, 300e3 * 12)
+setInterval(getch, 3600e3 * 12)
 
 /*
 link v x
