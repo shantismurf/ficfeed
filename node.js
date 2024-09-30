@@ -2,7 +2,7 @@ require('dotenv').config();
 
 var channels = [];
 var sendchannel = '';
-var msgurl = `https://discord.com/api/v10/channels/{}/messages?limit=100`;
+var msgurl = `https://discord.com/api/v10/channels/{}/messages?limit=30`;
 var getchurl = `https://discord.com/api/v10/guilds/${process.env.GUILD}/channels`;
 var seen = new Set();
 var chnames = (process.env.CHANNELS ?? '').split(',');
@@ -23,7 +23,7 @@ async function getmsg(c, i) {
 
 async function fetchMessages(start) {
   var res = [].concat(...(await Promise.all(channels.map((x, i) =>
-    new Promise(y => setTimeout(async () => y(await getmsg(x, i)), i * 5e3))
+    new Promise(y => setTimeout(async () => y(await getmsg(x, i)), i * 6e3))
   ))));
 
   var newmsg = res.filter(msg => !seen.has(msg[0].id)).map(msg => {
@@ -140,7 +140,7 @@ async function ao3api(link) {
   try {
     var res = await fetch(link, /*{ headers: { cookie: ao3session + ' user_credentials=1;' } }*/).then(e => e.text());
     if (!res)
-      return {};
+      return {error: true};
     var cur;
     var v = {};
     var rx = /<dd class="(.*?)(?<!stats)( tags)?">(.*?)<\/dd>/gs;
