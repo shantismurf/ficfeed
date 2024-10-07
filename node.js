@@ -53,7 +53,7 @@ async function fetchMessages(start) {
                 url: `https://${msg[2]}/`,
                 description:
                   `Posted by <@${msg[0].author.id}> in https://discord.com/channels/${process.env.GUILD}/${msg[1]}/${msg[0].id}`,
-                color: 0xFF0000,
+                color: 0x0000FF,
               }]
 						} :
             {
