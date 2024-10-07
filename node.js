@@ -10,7 +10,9 @@ var toamt = process.env.TIMEOUT ?? 60;
 // var ao3session;
 
 async function getmsg(c, i) {
-  console.log('Fetching messages: Channel ' + (i + 1) + ' / ' + channels.length + '...');
+  const now = new Date();
+  const timestampString = now.toISOString();
+  console.log('Fetching channel ' + (i + 1) + '/' + channels.length + '...' + timestampString);
   var x = await fetch(msgurl.replace('{}', c), {
     method: 'GET',
     headers: {
@@ -34,7 +36,6 @@ async function fetchMessages(start) {
   newmsg.forEach(async msg => {
     seen.add(msg[0].id);
     if (!start) {
-
       var ao3 = await ao3api('https://' + msg[2] + '/');
       to++;
       console.log('New Message:', msg[0].content);
@@ -105,12 +106,11 @@ async function fetchMessages(start) {
           ),
         }).then(e => e.json()).then(e => e.code ? console.log(JSON.stringify(e)) : ''),
         to * 5e3);
-
     }
   });
   if (start)
     console.log('Ready!');
-  setTimeout(fetchMessages, toamt * 1e3);
+  setTimeout(fetchMessages, toamt * 1);//e3);
   return res;
 }
 
@@ -198,3 +198,4 @@ process.on('uncaughtException', (e) => {
 }).on('unhandledRejection', (e) => {
   console.error(e);
 });
+
