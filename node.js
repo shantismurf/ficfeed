@@ -13,15 +13,41 @@ async function getmsg(c, i) {
   const now = new Date();
   const timestampString = now.toISOString();
   console.log('Fetching channel ' + (i + 1) + '/' + channels.length + '...' + timestampString);
+
+try {
+    const x = await fetch(msgurl.replace('{}',c), {
+    method: 'GET',
+    headers: {
+      'Authorization':`Bot ${process.env.TOKEN}`,
+      'Content-Type':'application/json',
+    },
+  });
+
+    if (!x.ok) {
+     // Handle HTTP errors (e.g., 404, 500)
+     // throw new Error(`HTTP error! status: ${x.status}`);
+       console.error('Error fetching data:', error);
+    }
+    x.then(e => e.json());
+    x = x instanceof Array ? x : [];
+    return x.map(x => [x, c]);
+
+  } catch (error) {
+    // Handle network errors or other exceptions
+    console.error('Error fetching data:', error);
+}
+/*
   var x = await fetch(msgurl.replace('{}', c), {
     method: 'GET',
     headers: {
       'Authorization': `Bot ${process.env.TOKEN}`,
       'Content-Type': 'application/json',
     },
-  }).then(e => e.json());
+  })
+.then(e => e.json());
   x = x instanceof Array ? x : [];
   return x.map(x => [x, c]);
+*/
 }
 
 async function fetchMessages(start) {
