@@ -39,6 +39,12 @@ async function fetchMessages(start) {
       var ao3 = await ao3api('https://' + msg[2] + '/');
       to++;
       console.log('New Message:', msg[0].content);
+      //set limits on summary and tag string lengths and append elipsis if truncated
+      var summarystr = (ao3.summary ?? 'None').substring(0, 400);
+   	  summarystr = summarystr.length == 400 ? summarystr + ' ...' : summarystr;
+      var tagstr = (ao3.freeform ?? 'None').substring(0, 400);
+   	  tagstr = tagstr.length == 400 ? tagstr + ' ...' : tagstr;
+        
       setTimeout(() =>
         fetch(msgurl.replace('{}', sendchannel), {
           method: 'POST',
@@ -88,12 +94,12 @@ async function fetchMessages(start) {
                   },
                   {
                     name: 'Tags',
-                    value: (ao3.freeform ?? 'None').substring(0, 1024),
+                    value: tagstr,
                     inline: true,
                   },
                   {
                     name: 'Summary',
-                    value: (ao3.summary ?? 'None').substring(0, 1024),
+                    value: summarystr,
                     // inline: true,
                   },
                 ],
@@ -198,4 +204,3 @@ process.on('uncaughtException', (e) => {
 }).on('unhandledRejection', (e) => {
   console.error(e);
 });
-
