@@ -175,6 +175,7 @@ async function ao3api(link) {
  //    v.summary = res.match(/(?<=blockquote class="userstuff">).*?(?=<\/blockquote>)/s)[0]
       .replace(/<p>(.*?)<\/p>/gs, (_, y) => y + '\n').replace(/<i>(.*?)<\/i>/gs, (_, y) => '*' + y + '*')
       .replace(/<b>(.*?)<\/b>/gs, (_, y) => '**' + y + '**').replace(/<\/br>/gs, (_, y) => '\n')
+      .replace(/<br\/>/gs, (_, y) => '\n').replace(/<br \/>/gs, (_, y) => '\n') 
       .replace(/^\n(.*)\n\n$/gs, (_, y) => y);
     v.published = v['stats">\n\n<dl class="stats"><dt class="published'].match(/(?<=">).*?$/)[0];
     delete v['stats">\n\n<dl class="stats"><dt class="published'];
