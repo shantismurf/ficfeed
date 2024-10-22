@@ -13,41 +13,20 @@ async function getmsg(c, i) {
   const now = new Date();
   const timestampString = now.toISOString();
   console.log('Fetching channel ' + (i + 1) + '/' + channels.length + '...' + timestampString);
-
-try {
-    const x = await fetch(msgurl.replace('{}',c), {
-    method: 'GET',
-    headers: {
-      'Authorization':`Bot ${process.env.TOKEN}`,
-      'Content-Type':'application/json',
-    },
-  });
-
-    if (!x.ok) {
-     // Handle HTTP errors (e.g., 404, 500)
-     // throw new Error(`HTTP error! status: ${x.status}`);
-       console.error('Error fetching data:', error);
+  var x = null;
+    try{
+      x = await fetch(msgurl.replace('{}', c), {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bot ${process.env.TOKEN}`,
+        'Content-Type': 'application/json',
+        },
+      }).then(e => e.json(), e => console.log('Error:', e.toString() + ' - ' + timestampString));
+ 	  }catch(e){
+		  console.log('Error:', e.toString() + ' - ' + timestampString);
     }
-    x.then(e => e.json());
-    x = x instanceof Array ? x : [];
-    return x.map(x => [x, c]);
-
-  } catch (error) {
-    // Handle network errors or other exceptions
-    console.error('Error fetching data:', error);
-}
-/*
-  var x = await fetch(msgurl.replace('{}', c), {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bot ${process.env.TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-  })
-.then(e => e.json());
   x = x instanceof Array ? x : [];
   return x.map(x => [x, c]);
-*/
 }
 
 async function fetchMessages(start) {
@@ -66,7 +45,8 @@ async function fetchMessages(start) {
       to++;
       console.log('New Message:', msg[0].content);
       //set limits on summary and tag string lengths and append elipsis if truncated
-      var summarystr = (ao3.summary ?? 'None').substring(0, 400);
+      var summarystr = (ao3.summary ?? 'None').substring(0);//,400);
+//summarystr = summarystr.slice(592,992);
    	  summarystr = summarystr.length == 400 ? summarystr + ' ...' : summarystr;
       var tagstr = (ao3.freeform ?? 'None').substring(0, 400);
    	  tagstr = tagstr.length == 400 ? tagstr + ' ...' : tagstr;
@@ -191,7 +171,8 @@ async function ao3api(link) {
     v.title = res.match(/(?<=<h2 class="title heading">\n).*?(?=\n<\/h2>)/s)[0];
     v.author = res.match(/(?<=<a rel="author" href=".*?">).*?(?=<\/a>)/s)[0];
     v.authorlink = 'https://archiveofourown.org' + res.match(/(?<=<a rel="author" href=").*?(?=">)/s)[0];
-    v.summary = res.match(/(?<=<blockquote class="userstuff">).*?(?=<\/blockquote>)/s)[0]
+    v.summary = res.match(/(?<=h3 class="heading">Summary:<\/h3>\n<blockquote class="userstuff">).*?(?=<\/blockquote>)/s)[0]
+ //    v.summary = res.match(/(?<=blockquote class="userstuff">).*?(?=<\/blockquote>)/s)[0]
       .replace(/<p>(.*?)<\/p>/gs, (_, y) => y + '\n').replace(/<i>(.*?)<\/i>/gs, (_, y) => '*' + y + '*')
       .replace(/<b>(.*?)<\/b>/gs, (_, y) => '**' + y + '**').replace(/<\/br>/gs, (_, y) => '\n')
       .replace(/^\n(.*)\n\n$/gs, (_, y) => y);
