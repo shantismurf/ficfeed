@@ -61,10 +61,11 @@ async function fetchMessages(start) {
           body: JSON.stringify(
 						ao3.error ? {
 							embeds: [{
-                title: 'Data could not be retrieved, Work may be restricted or could not be found.\nClick here to see work.',
+                title: 'Preview not available. Click here to see work.',//'Data could not be retrieved, Work mabe restricted or could not be found.\nClick here to see work.'),//\n ('+ e.toString() + ' - ' + timestampString+')',
                 url: `https://${msg[2]}/`,
                 description:
-                  `Posted by <@${msg[0].author.id}> in https://discord.com/channels/${process.env.GUILD}/${msg[1]}/${msg[0].id}`,
+                  `Posted by <@${msg[0].author.id}> in https://discord.com/channels/${process.env.GUILD}/${msg[1]}/${msg[0].id}
+`+ao3.error,
                 color: 0x0000FF,
               }]
 						} :
@@ -151,7 +152,7 @@ async function getch() {
 
 async function ao3api(link) {
   try {
-    var res = await fetch(link, /*{ headers: { cookie: ao3session + ' user_credentials=1;' } }*/).then(e => e.text());
+    var res = await fetch(link/*,{ headers: { cookie: ao3session + ' user_credentials=1;' } }*/).then(e => e.text());
     if (!res)
       return {error: true};
     var cur;
@@ -168,7 +169,7 @@ async function ao3api(link) {
         ml = [cur[3]];
       v[cur[1]] = ml.join(', ').replaceAll('&#39;', "'");
     };
-    v.title = res.match(/(?<=<h2 class="title heading">\n).*?(?=\n<\/h2>)/s)[0];
+    v.title = (res.match(/(?<=<h2 class="title heading">\n).*?(?=\n<\/h2>)/s)??[])[0]??"test";
     v.author = res.match(/(?<=<a rel="author" href=".*?">).*?(?=<\/a>)/s)[0];
     v.authorlink = 'https://archiveofourown.org' + res.match(/(?<=<a rel="author" href=").*?(?=">)/s)[0];
     v.summary = res.match(/(?<=h3 class="heading">Summary:<\/h3>\n<blockquote class="userstuff">).*?(?=<\/blockquote>)/s)[0]
@@ -180,8 +181,12 @@ async function ao3api(link) {
     v.published = v['stats">\n\n<dl class="stats"><dt class="published'].match(/(?<=">).*?$/)[0];
     delete v['stats">\n\n<dl class="stats"><dt class="published'];
     return v;
-  } catch (e) {
-    return {error: true};
+  } catch (e) {    
+    console.error(e)
+    return {error: e}
+
+
+
   }
 }
 
