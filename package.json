@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Discord bot AO3 link aggregator and embed written by geodebreaker",
   "main": "node.js",
+  "type": "module",
   "dependencies": {
     "dotenv": "^16.4.5"
   },
