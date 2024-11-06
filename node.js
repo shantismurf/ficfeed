@@ -66,7 +66,7 @@ async function fetchMessages(start) {
         to++;
         console.log('New Message:', msg[0].content);
         //set limits on summary and tag string lengths and append elipsis if truncated
-        var summarystr = (ao3.summary ?? 'None').substring(0);
+        var summarystr = (ao3.summary ?? 'None').substring(0, 400);
         summarystr = summarystr.length == 400 ? summarystr + ' ...' : summarystr;
         var tagstr = (ao3.freeform ?? 'None').substring(0, 400);
         tagstr = tagstr.length == 400 ? tagstr + ' ...' : tagstr;
