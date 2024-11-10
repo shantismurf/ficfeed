@@ -245,7 +245,8 @@ async function ao3api(link) {
       console.error('Failed to match summary');
       v.summary = '';
     }
-    const publishedMatch = res.match(/(?<=">).*?$/);
+    const publishedMatch = res.['stats">\n\n<dl class="stats"><dt class="published'].match(/(?<=">).*?$/)[0];
+      //res.match(/(?<=">).*?$/);
     if (publishedMatch) {
       v.published = publishedMatch[0];
     } else {
@@ -259,6 +260,17 @@ async function ao3api(link) {
       console.error('Failed to match updated date');
       v.status = '';
     }
+/*
+    v.summary = res.match(/(?<=<blockquote class="userstuff">).*?(?=<\/blockquote>)/s)[0]
+      .replace(/<p>(.*?)<\/p>/gs, (_, y) => y + '\n')
+      .replace(/<i>(.*?)<\/i>/gs, (_, y) => '*' + y + '*')
+      .replace(/<b>(.*?)<\/b>/gs, (_, y) => '**' + y + '**')
+      .replace(/<\/br>/gs, (_, y) => '\n')
+      .replace(/^\n(.*)\n\n$/gs, (_, y) => y);
+    v.published = 
+    delete v['stats">\n\n<dl class="stats"><dt class="published'];
+    return v;
+*/
     return v;
   } catch (e) {
     console.error(e)
