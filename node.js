@@ -83,7 +83,7 @@ async function fetchMessages(start) {
                   title: 'Preview not available. Click here to see work.',
                   url: `https://${msg[2]}/`,
                   description:
-                    `Posted by <@${msg[0].author.id}> in https://discord.com/channels/${process.env.GUILD}/${msg[1]}/${msg[0].id}`+ ao3.error,
+                    `Posted by <@${msg[0].author.id}> in https://discord.com/channels/${process.env.GUILD}/${msg[1]}/${msg[0].id}`,
                   color: 0x0000FF,
                 }]
               } :
