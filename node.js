@@ -80,7 +80,7 @@ async function fetchMessages(start) {
             body: JSON.stringify(
               ao3.error ? {
                 embeds: [{
-                  title: 'Preview not available. Click here to see work.',//'Data could not be retrieved, Work mabe restricted or could not be found.\nClick here to see work.'),//\n ('+ e.toString() + ' - ' + timestampString+')',
+                  title: 'Preview not available. Click here to see work.',
                   url: `https://${msg[2]}/`,
                   description:
                     `Posted by <@${msg[0].author.id}> in https://discord.com/channels/${process.env.GUILD}/${msg[1]}/${msg[0].id}`+ ao3.error,
@@ -181,6 +181,7 @@ async function getch() {
 }
 
 async function ao3api(link) {
+  var errorCount = 0;
   try {
     var res = await fetch(link).then(e => e.text());
     if (!res)
@@ -205,6 +206,7 @@ async function ao3api(link) {
     } else {
       console.error('Failed to match title');
       v.title = '';
+      errorCount++;
     }
     const authorMatch = res.match(/(?<=<a rel="author" href=".*?">).*?(?=<\/a>)/s);
     if (authorMatch) {
@@ -212,6 +214,7 @@ async function ao3api(link) {
     } else {
       console.error('Failed to match author');
       v.author = '';
+      errorCount++;
     }
     const authorLinkMatch = res.match(/(?<=<a rel="author" href=").*?(?=">)/s);
     if (authorLinkMatch) {
@@ -219,6 +222,7 @@ async function ao3api(link) {
     } else {
       console.error('Failed to match author link');
       v.authorlink = '';
+      errorCount++;
     }    
     const summaryMatch = res.match(/<h3 class="heading">Summary:<\/h3>\s*<blockquote class="userstuff">([\s\S]*?)<\/blockquote>/s);
     if (summaryMatch) {
@@ -244,33 +248,27 @@ async function ao3api(link) {
     } else {
       console.error('Failed to match summary');
       v.summary = '';
+      errorCount++;
     }
-    const publishedMatch = res.['stats">\n\n<dl class="stats"><dt class="published'].match(/(?<=">).*?$/)[0];
-      //res.match(/(?<=">).*?$/);
+    const publishedMatch = res.match(/<dd class="published">.*?<\/dd>/);
     if (publishedMatch) {
-      v.published = publishedMatch[0];
+      v.published = publishedMatch[0].replace(/<dd class="published">|<\/dd>/g, '');
     } else {
-      console.error('Failed to match published date');      
-      v.published = '';
+      console.error('Failed to match published date');
+      v.publishedDate = '';
+      errorCount++;
     }
-    const updatedMatch = res.match(/(?<=">).*?$/);
-    if (updatedMatch) {
-      v.status = updatedMatch[0];
+    const updatedDateMatch = res.match(/<dd class="status">(.*?)<\/dd>/);
+    if (updatedDateMatch) {
+      v.updatedDate = updatedDateMatch[1];
     } else {
       console.error('Failed to match updated date');
-      v.status = '';
+      v.updatedDate = '';
+      errorCount++;
     }
-/*
-    v.summary = res.match(/(?<=<blockquote class="userstuff">).*?(?=<\/blockquote>)/s)[0]
-      .replace(/<p>(.*?)<\/p>/gs, (_, y) => y + '\n')
-      .replace(/<i>(.*?)<\/i>/gs, (_, y) => '*' + y + '*')
-      .replace(/<b>(.*?)<\/b>/gs, (_, y) => '**' + y + '**')
-      .replace(/<\/br>/gs, (_, y) => '\n')
-      .replace(/^\n(.*)\n\n$/gs, (_, y) => y);
-    v.published = 
-    delete v['stats">\n\n<dl class="stats"><dt class="published'];
-    return v;
-*/
+    if (errorCount > 5) {
+      return {error: true};
+    }
     return v;
   } catch (e) {
     console.error(e)
