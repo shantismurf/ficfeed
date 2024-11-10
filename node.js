@@ -184,7 +184,7 @@ async function ao3api(link) {
   try {
     var res = await fetch(link).then(e => e.text());
     if (!res)
-      return { error: true };
+      return {error: true};
     var cur;
     var v = {};
     var rx = /<dd class="(.*?)(?<!stats)( tags)?">(.*?)<\/dd>/gs;
@@ -249,7 +249,15 @@ async function ao3api(link) {
     if (publishedMatch) {
       v.published = publishedMatch[0];
     } else {
+      console.error('Failed to match published date');      
       v.published = '';
+    }
+    const updatedMatch = res.match(/(?<=">).*?$/);
+    if (updatedMatch) {
+      v.status = updatedMatch[0];
+    } else {
+      console.error('Failed to match updated date');
+      v.status = '';
     }
     return v;
   } catch (e) {
