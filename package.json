@@ -1,16 +1,19 @@
 {
-  "name": "ficfeed",
+  "name": "package.json",
   "version": "1.0.0",
-  "description": "Discord bot AO3 link aggregator and embed written by geodebreaker",
-  "main": "node.js",
-  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
+    "discord.js": "^14.16.3",
     "dotenv": "^16.4.5"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {
+    "eslint": "^9.14.0"
+  }
 }
