@@ -1,5 +1,0 @@
-modules = ["nodejs-20"]
-run = "node node.js"
-
-[deployment]
-run = ["sh", "-c", "node node.js"]
