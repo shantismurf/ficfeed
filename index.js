@@ -10,10 +10,11 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
     ],
 });
-const { TOKEN } = require('./config.json');
-const { FEEDID } = require('./config.json');
-const { GUILD } = require('./config.json');
-const now = new Date();
+
+// require('dotenv').config()
+// const { TOKEN, FEEDID, GUILD } = process.env;
+const { TOKEN, FEEDID, GUILD } = require('./config.json');
+
 // When the client is ready, run this code (only once).
 client.once(Events.ClientReady, readyClient => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
@@ -25,13 +26,14 @@ client.on('messageCreate', message => {
     const msgID = message.id;
     const msgAuthor = message.author.id;
     const msgChannel = message.channel.id;
+		if (msgChannel == FEEDID) return;
     if (linkMatch.length > 0) {
         linkMatch.forEach((link) => {
             buildEmbed(link, msgID, msgAuthor, msgChannel);
         });
-        //console.log(`Link match: ${linkMatch}, ${msgID}, ${msgAuthor}, ${msgchannel} at ${now.toISOString()}`);
+        //console.log(`Link match: ${linkMatch}, ${msgID}, ${msgAuthor}, ${msgchannel} at ${fmtDate()}`);
     //} else {
-        //console.log('Link not found at ${now.toISOString()}');
+        //console.log('Link not found at ${fmtDate()}');
     }
 });
 
@@ -59,7 +61,8 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
             let tagstr = (ao3.freeform ?? 'None').substring(0, 400);
             tagstr = tagstr.length == 400 ? tagstr + ' ...' : tagstr;
             //shorten rating text here
-            let ratingstr = ao3.rating==="General Audiences"?"General":ao3.rating==="Teen And Up Audiences"?"Teen":ao3.rating;
+            let ratingstr = ao3.rating === "General Audiences" ? "General" : 
+							ao3.rating === "Teen And Up Audiences" ? "Teen" : ao3.rating;
             res = await feedChannel.send({
                 embeds: [{
                     title: ao3.title,
@@ -107,7 +110,7 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
             })
         }
     } catch (error) {
-		console.error(`${now.toISOString()} : Error fetching AO3 metadata from ${linkURL}\nIn post https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}}):\n${error}`);
+		console.error(`${fmtDate()} : Error fetching AO3 metadata from ${linkURL}\nIn post https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}}):\n${error}`);
     }
 }
 async function ao3api(link) {
@@ -131,30 +134,26 @@ async function ao3api(link) {
             v[cur[1]] = ml.join(', ').replaceAll('&#39;', "'");
         };
         const titleMatch = res.match(/<h2 class="title heading">(.*?)<\/h2>/s);
-        if (titleMatch) {
-            v.title = titleMatch[1].replace(/<[^>]*>/g, '').trim();
-        } else {
+        const authorMatch = res.match(/(?<=<a rel="author" href=".*?">).*?(?=<\/a>)/s);
+        const authorLinkMatch = res.match(/(?<=<a rel="author" href=").*?(?=">)/s);
+        const summaryMatch = res.match(/<h3 class="heading">Summary:<\/h3>\s*<blockquote class="userstuff">([\s\S]*?)<\/blockquote>/s);
+        const publishedMatch = res.match(/(?<=<dd class="published">).*?(?=<\/dd>)/);
+        const updatedDateMatch = res.match(/<dd class="status">(.*?)<\/dd>/);
+        if (titleMatch) v.title = titleMatch[1].replace(/<[^>]*>/g, '').trim(); else {
             console.error('Failed to match title');
             v.title = '';
             errorCount++;
         }
-        const authorMatch = res.match(/(?<=<a rel="author" href=".*?">).*?(?=<\/a>)/s);
-        if (authorMatch) {
-            v.author = authorMatch[0];
-        } else {
+        if (authorMatch) v.author = authorMatch[0]; else {
             console.error('Failed to match author');
             v.author = '';
             errorCount++;
         }
-        const authorLinkMatch = res.match(/(?<=<a rel="author" href=").*?(?=">)/s);
-        if (authorLinkMatch) {
-            v.authorlink = 'https://archiveofourown.org' + authorLinkMatch[0];
-        } else {
+        if (authorLinkMatch) v.authorlink = 'https://archiveofourown.org' + authorLinkMatch[0]; else {
             console.error('Failed to match author link');
             v.authorlink = '';
             errorCount++;
         }
-        const summaryMatch = res.match(/<h3 class="heading">Summary:<\/h3>\s*<blockquote class="userstuff">([\s\S]*?)<\/blockquote>/s);
         if (summaryMatch) {
             const summary = summaryMatch[0]
                 .replace(/<(p|i|b)>/gs, (m, tag) => {
@@ -172,40 +171,35 @@ async function ao3api(link) {
                 .replace(/<\/(p|i|b)>/gs, '')
                 .replace(/<br\s*\/?>/gs, '\n')
                 .replace(/Summary:/gs, '')
-                .replace(/<[^>]*>/g, '').trim()
-                .trim();
+                .replace(/<[^>]*>/g, '').trim();
             v.summary = summary;
         } else {
             console.error('Failed to match summary');
             v.summary = '';
             errorCount++;
         }
-        const publishedMatch = res.match(/<dd class="published">.*?<\/dd>/);
-        if (publishedMatch) {
-            v.published = publishedMatch[0].replace(/<dd class="published">|<\/dd>/g, '');
-        } else {
+        if (publishedMatch) v.published = publishedMatch[0]; else {
             console.error('Failed to match published date');
-            v.publishedDate = '';
+            v.published = '';
             errorCount++;
         }
-        const updatedDateMatch = res.match(/<dd class="status">(.*?)<\/dd>/);
-        if (updatedDateMatch) {
-            v.updatedDate = updatedDateMatch[1];
-        } else {
+        if (updatedDateMatch) v.updatedDate = updatedDateMatch[1]; else {
             console.error('Failed to match updated date');
             v.updatedDate = '';
             errorCount++;
         }
-        if (errorCount > 5) {
-            return { error: true };
-        }
-        console.log(`Link processed at ${now.toISOString()} had ${errorCount} error(s).`);
+        if (errorCount > 5) return { error: 'too many errors' }; // sorry but this is horrible error handling
+        console.log(`Link processed at ${fmtDate()} had ${errorCount} error(s).`);
         return v;
     } catch (e) {
-        console.log(`Link processed at ${now.toISOString()} failed.`);
+        console.log(`Link processed at ${fmtDate()} failed.`);
         console.error(e)
         return { error: e }
     }
 }
+function fmtDate() {
+	return (new Date()).toISOString();
+}
+
 // Log in to Discord with your client's token
 client.login(TOKEN);
