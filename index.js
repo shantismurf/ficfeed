@@ -32,22 +32,14 @@ async function retry(buildEmbed, link, msgID, msgAuthor, msgChannel, retries = 3
 // Listen for messages
 client.on('messageCreate', message => {
     if (message.author.bot) return; // Ignore messages from bots  
-    //const linkMatch = message.content.match(/archiveofourown.org\/works\/\d{1,12}/g) ?? []; //match only 'works' links
-    //const linkMatch = message.content.match(/archiveofourown.org\/(works|series)\/\d{1,12}/g) ?? []; //match 'works' and 'series' links
-    //const linkMatch = message.content.match(/(https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^\/]+)/g) ?? [];
-    //const urlRegex = /https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^ ]+/g;
     const urlRegex = /https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^>\]\)"\s]+/g;
-    //const urlRegex = /https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^>]*?(?=[>\]\)"\s])/g;
     const linkMatch = message.content.match(urlRegex) || [];
     const msgID = message.id;
     const msgAuthor = message.author.id;
     const msgChannel = message.channel.id;
     if (linkMatch.length > 0) {
         linkMatch.forEach((link) => {
-            //buildEmbed(link, msgID, msgAuthor, msgChannel);
             retry(buildEmbed, link, msgID, msgAuthor, msgChannel, 3, 1000);//retry 3 times with 1 second delay
-            //.then(data => console.log(data))
-            //.catch(err => console.error(err));
         });
         //console.log(`2 - Link match: ${linkMatch}, ${msgID}, ${msgAuthor}, ${msgChannel} at ${now.toISOString().replace(/\.\d+Z$/, 'Z')}`);
         //} else {
@@ -79,29 +71,6 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
             };
         } else {
             if (ao3.type == 'work') {
-                /*
-                metadata = {
-                    type: 'work',
-                    workTitle: '',
-                    workAuthor: '',
-                    workSummary: '',
-                    workUpdated: '',
-                    workFreeform: '',
-                    workRating: '',
-                    workWarning: '',
-                    workCategory: '',
-                    workFandom: '',
-                    workCharacter: '',
-                    workLanguage: '',
-                    workSeries: '',
-                    workPublished: '',
-                    workWords: '',
-                    workChapters: '',
-                    workComments: '',
-                    workKudos: '',
-                    workHits: ''
-                }
-                */
                 //set limits on summary and tag string lengths and append elipsis if truncated
                 let summarystr = (ao3.workSummary ?? 'None').substring(0, 400);
                 summarystr = summarystr.length == 400 ? summarystr + ' ...' : summarystr;
@@ -272,8 +241,6 @@ async function ao3api(link) {
         let strRegex = '';
         let dataArray = [];
         responseText = await fetch(link).then(response => response.text());
-        //console.log(`4 - after link fetch`);
-        //console.log(`responseText at ${now.toISOString().replace(/\.\d+Z$/, 'Z')}: ${responseText}`);
         if (!responseText) return { error: true };
         let metadata = {};
         //check if link is for works, series, or collections
