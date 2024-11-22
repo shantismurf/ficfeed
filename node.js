@@ -1,5 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config({ path: './.env' });
+require('dotenv').config();
 
 var channels = [];
 let sendchannel = '';
@@ -11,9 +10,10 @@ const chnames = (process.env.CHANNELS ?? '').split(',');
 const toamt = process.env.TIMEOUT ?? 60;
 
 async function fetchData() {
-  if (cache[getchurl]) {
-    return cache[getchurl];
-  }
+  //  this makes no sense at all
+  // if (cache[getchurl]) {
+  //   return cache[getchurl];
+  // }
   try {
     const response = await fetch(getchurl, {
       headers: {
@@ -22,7 +22,7 @@ async function fetchData() {
       },
     });
     const data = await response.json();
-    cache[getchurl] = data;
+    // cache[getchurl] = data;
     return data;
   } catch (error) {
     console.error(error);
