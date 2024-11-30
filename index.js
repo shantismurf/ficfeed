@@ -1,5 +1,5 @@
 // Require the necessary discord.js classes
-const { Client, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Events, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 // Create a new client instance
 const client = new Client({
     intents: [
@@ -16,7 +16,8 @@ const now = new Date()
 client.once(Events.ClientReady, readyClient => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
-//call the buildEmbed function with a retry loop to catch any weird discord.js "nonce" errors and try again
+//const systemMessage = `-# Use '//' before a link to disable the bot.`;
+//call the buildEmbed function with a retry loop to catch any weird errors and try again
 async function retry(buildEmbed, link, msgID, msgAuthor, msgChannel, retries = 3, delay = 1000) {
     for (let i = 0; i < retries; i++) {
         try {
@@ -32,43 +33,48 @@ async function retry(buildEmbed, link, msgID, msgAuthor, msgChannel, retries = 3
 // Listen for messages
 client.on('messageCreate', message => {
     if (message.author.bot) return; // Ignore messages from bots  
-    const urlRegex = /https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^>\]\)"\s]+/g;
-    const linkMatch = message.content.match(urlRegex) || [];
     const msgID = message.id;
     const msgAuthor = message.author.id;
     const msgChannel = message.channel.id;
-    if (linkMatch.length > 0) {
-        linkMatch.forEach((link) => {
-            retry(buildEmbed, link, msgID, msgAuthor, msgChannel, 3, 1000);//retry 3 times with 1 second delay
-        });
-        //console.log(`2 - Link match: ${linkMatch}, ${msgID}, ${msgAuthor}, ${msgChannel} at ${now.toISOString().replace(/\.\d+Z$/, 'Z')}`);
-        //} else {
-        //console.log('Link not found at ${now.toISOString().replace(/\.\d+Z$/, 'Z')}');
+    const urlRegex = /https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^>\]\)"\s]+/g;
+    const urlRegexLookbehind = /([^a-zA-Z0-9]{4})\b(https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^>\]\)"\s]+)/g;
+    let match;
+    //make an array of all urls
+    while ((match = urlRegex.exec(message.content)) !== null) {
+        let url = match[0]; // get one URL from the array
+        let linkMatch = urlRegexLookbehind.exec(message.content); //look for any two special characters before it
+        console.log('look behind: ' +(linkMatch ? linkMatch[0] : message.content));
+        if (linkMatch) {
+            let prefix = linkMatch[1]; // get the two characters before the URL
+            if (['_ _ ', ' _ <'].includes(prefix)) { //if they match a skip prefix
+                console.log(`Skip Prefix Found: ${prefix}`);
+                console.log(`Skip Link match: ${url}`);
+            } else { //process the url normally
+                console.log(`1 - Link match: ${url}`);
+                retry(buildEmbed, url, msgID, msgAuthor, msgChannel, 3, 1000);//retry 3 times with 1 second delay
+            }
+        } else { //no characters before url, process normally
+            console.log(`1 - Link match: ${url}`);
+            retry(buildEmbed, url, msgID, msgAuthor, msgChannel, 3, 1000);//retry 3 times with 1 second delay
+        }
     }
 });
-
+let linkType;
 async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
-    //console.log(`buildEmbed: ${linkURL}, ${msgID}, ${msgAuthor}, ${msgChannel} at ${now.toISOString().replace(/\.\d+Z$/, 'Z')}`);
     let responseText;
-    //console.log(`1 - before buildembed try`);
     try {
         //extract data from ao3 html code into json object
         let ao3 = await ao3api(linkURL);
         //check for restricted work error, build embed, and send
-        //console.log(`7 - a03api object before feedchannel fetch: ${JSON.stringify(ao3)} for ${linkURL}`);
         const feedChannel = client.channels.cache.get(FEEDID);
-        //console.log(`8 - a03api object after feedchannel ${FEEDID}fetch: ${JSON.stringify(ao3)}`);
         if (ao3.error) {
-            //responseText = await feedChannel.send({
-            responseText = {
-                embeds: [{
-                    title: `Preview not available. Click here to view.`,
-                    url: linkURL,
-                    description:
-                        `Posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`,
-                    color: 0x808080,
-                }]
-            };
+            //work is restricted or unavailable 
+            linkType = linkType.split(' ')[0].charAt(0).toUpperCase() + linkType.split(' ')[0].slice(1);
+            responseText = new EmbedBuilder()
+                .setColor(0x808080)
+                .setTitle(`Preview not available. ${linkType} may be restricted or unavailable. Click here to view.`)
+                .setURL(linkURL)
+                .setDescription(`Posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`)
         } else {
             if (ao3.type == 'work') {
                 //set limits on summary and tag string lengths and append elipsis if truncated
@@ -76,155 +82,188 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                 summarystr = summarystr.length == 400 ? summarystr + ' ...' : summarystr;
                 let tagstr = (ao3.workFreeform ?? 'None').substring(0, 400);
                 tagstr = tagstr.length == 400 ? tagstr + ' ...' : tagstr;
-                //shorten rating text here
-                let ratingstr = ao3.workRating === "General Audiences" ? "General" : ao3.workRating === "Teen And Up Audiences" ? "Teen" : ao3.workRating;
-                responseText = {
-                    embeds: [{
-                        title: ao3.workTitle,
-                        url: linkURL,
-                        description:                       
-                            ` Work posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`,
-                        color: ({
-                            "Not Rated": 0x808080, "General": 0x0000FF,
-                            "Teen": 0x008000, "Mature": 0xFFA500, "Explicit": 0xFF0000
-                        })[ratingstr],
-                        author: {
-                            name: 'A work by ' + ao3.workAuthor,
-                            url: `http://archiveofourown.org/users/${ao3.workAuthor}`,
-                        },
-                        fields: [
-                            {
-                                name: 'Published' + (ao3.workUpdated ? ' | Updated' : ''),
-                                value: (ao3.workPublished + (ao3.workUpdated ? ' | ' + ao3.workUpdated : '')).substring(0, 1024),
-                                inline: true
-                            },
-                            {
-                                name: 'Words | Chapters',
-                                value: (ao3.workWords + ' | ' + ao3.workChapters).substring(0, 1024),
-                                inline: true,
-                            },
-                            {
-                                name: 'Rating | Warning',
-                                value: ({
-                                    "Not Rated": ':black_circle: ', "General": ':blue_circle: ',
-                                    "Teen": ':green_circle: ', "Mature": ':yellow_circle: ', "Explicit": ':red_circle: '
-                                })[ratingstr] +  
-                                    ratingstr + ' | ' + ao3.workWarning.substring(0, 1024),
-                            },
-                            {
-                                name: 'Tags',
-                                value: tagstr,
-                                inline: true,
-                            },
-                            {
-                                name: 'Summary',
-                                value: summarystr,
-                            },
-                        ],
-                        footer: {
-                            text: ('Hits: ' + ao3.workHits + ' | Kudos: ' + (ao3.workKudos ?? 0) +
-                                ' | Comments: ' + (ao3.workComments ?? 0)).substring(0, 1024)
-                        }
-                    }]
-                }
-                if (ao3.workSeries !== '') {
-                    responseText.embeds[0].fields.unshift({
+                let ratingstr = //shorten rating text
+                    ao3.workRating === "General Audiences" ? "General" :
+                        ao3.workRating === "Teen And Up Audiences" ? "Teen" :
+                            ao3.workRating;
+                responseText = new EmbedBuilder()
+                    .setColor(
+                        ({ //compare text to ratingstr and set the appropriate color
+                            "Not Rated": 0x808080,
+                            "General": 0x0000FF,
+                            "Teen": 0x008000,
+                            "Mature": 0xFFA500,
+                            "Explicit": 0xFF0000
+                        })[ratingstr]
+                    )
+                    .setTitle(ao3.workTitle.substring(0, 1024))
+                    .setURL(linkURL)
+                    .setAuthor({
+                        name: 'A work by ' + ao3.workAuthor,
+                        url: `http://archiveofourown.org/users/${ao3.workAuthor}`
+                    })
+                    .setDescription(
+                        ` Work posted by <@${msgAuthor}> in ` +
+                        `https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
+                    );
+                if (ao3.workSeries !== '') { //add series text first, if it exists
+                    responseText.addFields({
                         name: '',
-                        value: ao3.workSeries
+                        value: ao3.workSeries.substring(0, 1024)
                     });
                 }
+                if (ao3.workPublished) {
+                    let strName = 'Published';
+                    let strValue = ao3.workPublished.substring(0, 1024);
+                    if (ao3.workComplete) { //if the work is complete
+                        strName = 'Published | Completed';
+                        if (ao3.workUpdated) { //and has an updated date use that
+                            strValue = strValue + ' | ' + ao3.workUpdated.substring(0, 1024);
+                        } else { //if its complete but has no updated date use published date (chapters are 1/1)
+                            strValue = strValue + ' | ' + strValue;
+                        };
+                    } else { //if workcomplete is false only print published date, unless an updated date exists
+                        let strUpdated = ao3.workUpdated ? ao3.workUpdated.substring(0, 1024) : '';
+                        strName = 'Published' + (strUpdated.length > 0 ? ' | Updated' : '');
+                        strValue = strValue + (strUpdated.length > 0 ? ' | ' + strUpdated : '');
+                    };
+                    responseText.addFields({ name: strName, value: strValue, inline: true });
+                };
+                responseText.addFields(
+                    {
+                        name: 'Words | Chapters',
+                        value: (ao3.workWords + ' | ' + ao3.workChapters).substring(0, 1024),
+                        inline: true
+                    },
+                    {//compare text to ratingstr and set the appropriate icon
+                        name: 'Rating | Warning',
+                        value: ({
+                            "Not Rated": ':black_circle: ',
+                            "General": ':blue_circle: ',
+                            "Teen": ':green_circle: ',
+                            "Mature": ':yellow_circle: ',
+                            "Explicit": ':red_circle: '
+                        })[ratingstr] +
+                            ratingstr + ' | ' + ao3.workWarning.substring(0, 1024)
+                    },
+                    {
+                        name: 'Fandom',
+                        value: ao3.workFandom.substring(0, 1024),
+                        inline: true
+                    },
+                    {
+                        name: 'Category',
+                        value: ao3.workCategory.substring(0, 1024),
+                        inline: true
+                    },
+                    //blank field to make two column line break
+                    {
+                        name: '\t',
+                        value: '\t'
+                    },
+                    {
+                        name: 'Relationship',
+                        value: ao3.workRelationship,
+                        inline: true
+                    },
+                    {
+                        name: 'Character',
+                        value: ao3.workCharacter,
+                        inline: true
+                    },
+                    {
+                        name: 'Tags',
+                        value: tagstr
+                    },
+                    {
+                        name: 'Summary',
+                        value: summarystr
+                    }
+                )
+                    .setFooter({
+                        text: 'Hits: ' + ao3.workHits + ' | Kudos: ' + (ao3.workKudos ?? 0) +
+                            ' | Comments: ' + (ao3.workComments ?? 0)
+                    });
             } else if (ao3.type == 'series') {
                 //set limits on description string length and append elipsis if truncated
                 let descriptionstr = (ao3.seriesDescription ?? 'None').substring(0, 400);
                 descriptionstr = descriptionstr.length == 400 ? descriptionstr + ' ...' : descriptionstr;
-                responseText = {
-                    embeds: [{
-                        title: ao3.seriesTitle,
-                        url: linkURL,
-                        description:
-                            `:purple_circle: Series posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`,
-                        color: 0xD7A9F1,//0xFF00FF,
-                        author: {
-                            name: 'A series by ' + ao3.seriesCreator,
-                            url: 'https://archiveofourown.org/users/' + ao3.seriesCreator,
+                responseText = new EmbedBuilder()
+                    .setColor(0xD7A9F1)
+                    .setTitle(ao3.seriesTitle)
+                    .setURL(linkURL)
+                    .setDescription(
+                        `:purple_circle: Series posted by <@${msgAuthor}> ` +
+                        `in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
+                    )
+                    .setAuthor({
+                        name: 'A series by ' + ao3.seriesCreator,
+                        url: 'https://archiveofourown.org/users/' + ao3.seriesCreator
+                    })
+                    .addFields(
+                        {
+                            name: 'Date Begun | Date Updated',
+                            value: ao3.seriesBegun + ' | ' + ao3.seriesUpdated
                         },
-                        fields: [
-                            {
-                                name: 'Date Begun | Date Updated',  //seriesBegun/seriesUpdated
-                                value: (ao3.seriesBegun + ' | ' + ao3.seriesUpdated).substring(0, 1024),
-                                inline: true
-                            },
-                            {
-                                name: 'Description',
-                                value: descriptionstr,
-                            },
-                            {
-                                name: 'Words | Works',
-                                value: (ao3.seriesWords + ' words in ' + ao3.seriesWorks).substring(0, 1024) + (ao3.seriesWorks > 1 ? ' works' : ' work'),
-                                inline: true,
-                            }
-                        ],
-                        footer: {
-                            text: 'Complete: ' + ao3.seriesComplete + ' | Bookmarks: ' + (ao3.bookmarks ?? 0)
+                        {
+                            name: 'Description',
+                            value: descriptionstr
+                        },
+                        {
+                            name: 'Words | Works',
+                            value: `${ao3.seriesWords} words in ${ao3.seriesWorks}` + (ao3.seriesWorks > 1 ? ' works' : ' work')
                         }
-                    }]
-                }
+                    )
+                    .setFooter({
+                        text: 'Complete: ' + ao3.seriesComplete + ' | Bookmarks: ' + (ao3.bookmarks ?? 0)
+                    })
             } else if (ao3.type == 'collection') {
-                responseText = {
-                    embeds: [{
-                        author: {
-                            name: 'A collection on AO3:',
-                        },
-                        title: ao3.collectionTitle,
-                        url: linkURL,
-                        description: `:orange_circle: Collection posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`,
-                        color: 0xFF6600,
-                        fields: [
-                            {
-                                name: 'Description:',
-                                value: ao3.collectionDescription
-                            },
-                            {
-                                name: 'Bookmarked Items:',
-                                value: `(${ao3.collectionBookmarkedItems})`
-
-                            },
-                            {
-                                name: 'Works:',
-                                value: `(${ao3.collectionWorks})`
-                            },
-                            {
-                                name: 'Subcollections:',
-                                value: `(${ao3.collectionSubcollections})`
-                            },
-                            {
-                                name: 'Fandoms:',
-                                value: `(${ao3.collectionFandoms})`
-                            }
-                        ],
-                        thumbnail: {
-                            url: ao3.collectionImage
-                        },
-                        footer: {
-                            text: `Status: (${ao3.collectionType})`
-                        }
-                    }]
-                }
+                responseText = new EmbedBuilder();
+                responseText.setColor(0xFF6600);
+                responseText.setTitle(ao3.collectionTitle);
+                responseText.setURL(linkURL);
+                responseText.setDescription(`:orange_circle: Collection posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`);
+                responseText.addFields(
+                    {
+                        name: 'Description:',
+                        value: (ao3.collectionDescription ? ao3.collectionDescription :'\t')
+                    });
+                responseText.addFields(
+                    {
+                        name: 'Bookmarked Items:',
+                        value: `(${ao3.collectionBookmarkedItems})`
+                    });
+                responseText.addFields(
+                    {
+                        name: 'Works:',
+                        value: `(${ao3.collectionWorks})`
+                    });
+                responseText.addFields(
+                    {
+                        name: 'Subcollections:',
+                        value: `(${ao3.collectionSubcollections})`
+                    });
+                responseText.addFields(
+                    {
+                        name: 'Fandoms:',
+                        value: `(${ao3.collectionFandoms})`
+                    });
+                responseText.setThumbnail(ao3.collectionImage);
+                responseText.setFooter({ text: `Status: (${ao3.collectionType})` });
             }
         }
-        delete responseText.nonce;
-        //console.log(`9 - responseText:${JSON.stringify(responseText)}`);
-        responseText = await feedChannel.send(responseText);
-        //console.log(`10 - send error: ${error}`);
+        console.log(`9 - responseText:${JSON.stringify(responseText)}`);
+        //send the message
+        responseText = await feedChannel.send({ embeds: [responseText] });
     } catch (error) {
-        console.log(`${now.toISOString().replace(/\.\d+Z$/, 'Z')} : Error fetching AO3 metadata from ${linkURL}\nIn post https://discord.com/channels/${GUILD}/${msgChannel}/${msgID} ):\n${error}`);
+        console.log(`${now.toISOString().replace(/\.\d+Z$/, 'Z')}: Error sending message: ${error}`);
     }
 }
 async function getData(responseText, errorCount, strType, strRegex) {
     let getMatch = strRegex.exec(responseText);
     if (!getMatch) {
         errorCount++;
-        console.error(`Failed to match ${strType}, error count: ${errorCount}`);
+        console.log(`Failed to match ${strType}, error count: ${errorCount}`);
         getMatch = ['', errorCount];
     } else {
         //console.log(`getData for ${strType}: ${getMatch[1]}`); 
@@ -246,7 +285,8 @@ async function ao3api(link) {
         //check if link is for works, series, or collections
         if (link.includes("works")) {
             //console.log(`5 - processing work`);
-            metadata.type = 'work';
+            linkType = 'work';
+            metadata.type = linkType;
             //parse the data, creating variable names from each dd class 
             strRegex = /<dd class="([^"]+)">([\s\S]*?)<\/dd>/g;
             let ddMatch;
@@ -287,14 +327,16 @@ async function ao3api(link) {
             metadata.workBookmarks = responseText.match(strRegex);
             strRegex = /<span class="series"><span class="position">(.*?)<a href="(.*?)">(.*?)<\/a><\/span>/;
             const seriesArray = responseText.match(strRegex);
+            let workComplete = (responseText.match(/<dt class=\"status\">Completed:<\/dt>/) ? true : false);
+            if (metadata.workChapters == '1/1') { workComplete = true }
+            metadata.workComplete = workComplete;
             if (!seriesArray) {
                 metadata.workSeries = '';
                 errorCount++;
-                console.error(`Does not have or failed to match ${strType}, error count: ${errorCount}`);
-            } else {
+                console.log(`Does not have or failed to match ${strType}, error count: ${errorCount}`);
+            } else { ///build series link with text # of #
                 metadata.workSeries = `${seriesArray[1]}[${seriesArray[3]}](https://archiveofourown.org${seriesArray[2]})`;
             }
-            console.log(`workSeries: ${metadata.workSeries}`);
             //retrieve summary and remove/replace html
             strRegex = /<h3 class="heading">Summary:<\/h3>\s*<blockquote class="userstuff">([\s\S]*?)<\/blockquote>/s;
             const summaryMatch = responseText.match(strRegex);
@@ -321,23 +363,13 @@ async function ao3api(link) {
             } else {
                 metadata.workSummary = '';
                 errorCount++;
-                console.error(`Failed to match summary, error count: ${errorCount}`);
+                console.log(`Failed to match summary, error count: ${errorCount}`);
             }
             console.log(`Work ${link} processed at ${now.toISOString().replace(/\.\d+Z$/, 'Z')} had ${errorCount} error(s).`);
             // if link to series 
         } else if (link.includes("series")) {
-            metadata = {
-                type: 'series',
-                seriesTitle: '',
-                seriesCreator: '',
-                seriesBegun: '',
-                seriesUpdated: '',
-                seriesDescription: '',
-                seriesWords: '',
-                seriesWorks: '',
-                seriesComplete: '',
-                seriesBookmarks: ''
-            };
+            linkType = 'series';
+            metadata.type = linkType;
             //retrieve series metadata
             strType = 'title';
             strRegex = /<h2 class="heading">[\s\n\r]*([^<]+)<\/h2>/;
@@ -383,7 +415,8 @@ async function ao3api(link) {
             const descriptionRegex = /<dt>Description:<\/dt>\s*<dd><blockquote class="userstuff">(.*?)<\/blockquote><\/dd>/;
             const descriptionMatch = descriptionRegex.exec(responseText);
             if (!descriptionMatch) {
-                console.error('Failed to match description');
+                console.log('Failed to match description');
+                metadata.seriesDescription = '';
                 errorCount++;
             } else {
                 const cleanDescription = descriptionMatch[1]
@@ -409,17 +442,8 @@ async function ao3api(link) {
             console.log(`Series ${link} processed at ${now.toISOString().replace(/\.\d+Z$/, 'Z')} had ${errorCount} error(s).`);
             // if link to collections - https://archiveofourown.org/collections/BagginshieldBookClub
         } else if (link.includes("collections")) {
-            metadata = {
-                type: 'collection',
-                collectionTitle: '',
-                collectionDescription: '',
-                collectionBookmarkedItems: '',
-                collectionWorks: '',
-                collectionFandoms: '',
-                collectionSubcollections: '',
-                collectionImage: '',
-                collectionType: ''
-            };
+            linkType = 'collection';
+            metadata.type = linkType;
             //retrieve collection metadata
             strType = 'title';
             strRegex = /<h2 class="heading">[\s\n\r]*([^<]+)<\/h2>/;
@@ -447,20 +471,21 @@ async function ao3api(link) {
             metadata.collectionSubcollections = dataArray[0];
             errorCount = dataArray[1];
             strType = 'type';
-            strRegex = /<p class="type">[\s\S]\((.*?)\)/;;
+            strRegex = /<p class="type">\s{1,}\((.*?)\)/;
             dataArray = await getData(responseText, errorCount, strType, strRegex);
             metadata.collectionType = dataArray[0];
             errorCount = dataArray[1];
             strType = 'image';
             strRegex = /<div class="icon">[\s\S]*<img alt="" src="([^"]+)"/;
             dataArray = await getData(responseText, errorCount, strType, strRegex);
-            metadata.collectionImage = dataArray[0];
+            metadata.collectionImage = (dataArray[0].indexOf('http') === -1 ? `https://archiveofourown.org${dataArray[0]}` : dataArray[0]);
             errorCount = dataArray[1];
             //retrieve description and remove/replace html
             const descriptionRegex = /<div class="primary header module">[\s\S]*<blockquote class="userstuff">(.*?)<\/blockquote>/;
             const descriptionMatch = descriptionRegex.exec(responseText);
             if (!descriptionMatch) {
-                console.error('Failed to match description');
+                console.log('Failed to match description');
+                metadata.collectionDescription = '';
                 errorCount++;
             } else {
                 const cleanDescription = descriptionMatch[1]
@@ -484,16 +509,23 @@ async function ao3api(link) {
             }
             console.log(`Collection ${link} processed at ${now.toISOString().replace(/\.\d+Z$/, 'Z')} had ${errorCount} error(s).`);
         }
-        console.log(`metadata :${JSON.stringify(metadata)}`);
+        console.log(`${errorCount}-metadata :${JSON.stringify(metadata)}`);
         if (errorCount >= 5) {
             return { error: true };
         }
         return metadata;
     } catch (e) {
         console.log(`Link ${link} processed at ${now.toISOString().replace(/\.\d+Z$/, 'Z')} failed.`);
-        console.error(e)
+        console.log(e)
         return { error: e }
     }
 }
+//status update experiment 
+client.on('presenceUpdate', (oldPresence, newPresence) => {
+  //  if (!newPresence.activities) return false; 
+   // newPresence.activities.forEach(activity => {
+    console.log(`${now.toISOString().replace(/\.\d+Z$/, 'Z')}: ${newPresence.member} is now ${newPresence.status}`);
+
+});
 // Log in to Discord with your client's token
 client.login(TOKEN);
