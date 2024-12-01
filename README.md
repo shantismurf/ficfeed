@@ -1,16 +1,20 @@
 # ficfeed
-v0.3.0-beta - AO3 ficfeed Discord bot (pre-release)
-Authors: shantismurf and geodebreaker
-Discord: https://discord.gg/XK8AtYVdQU
+- v0.3.0-beta - AO3 ficfeed Discord bot (pre-release)
+- Authors: shantismurf and geodebreaker
+- Discord: https://discord.gg/XK8AtYVdQU
 
 Purpose:
-Aggregates all links to AO3 works, series, and collections mentioned in any public channel into a single channel where they are posted as embeds with link data.
+- Aggregates all links to AO3 works, series, and collections mentioned in any public channel into a single channel where they are posted as embeds with link data.
 
 Release History:
 - v0.3.0-beta
   - Final major revision to code.
   - Now processes series and collection links as well as works.
-  - Added a skip prefix that suppresses the posting process if the link is preceded by two underlines separated by a space with another space after: `_ _ https...`. Also works before links with discord embed suppression: `_ _ <https...>`
+  - Added a skip prefix that suppresses the posting process if:
+  - the link is preceded by two underlines separated by a space with another space after: 
+  - `_ _ https...` 
+  - Also works before links with discord embed suppression: 
+  - `_ _ <https...>`
 - v0.2.0 Release:
   - Reworked the bot to work instantaneously when a message is posted to a public channel using the discord.js API.
 
