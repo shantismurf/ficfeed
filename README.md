@@ -21,7 +21,7 @@ Future development:
   - Make string length when truncating description and freeform tags configurable
   - Consider other options that may be desired...toggle each field on and off? Change colors?
   - Establish a database for configuration storage
-- Develop a /library command that accepts user notes and additional text on warnings and ratings to create embed fic library entries (reference StewBot persistent message functionality)
+- Develop a /library command that accepts user notes and additional text on warnings and ratings to create embed fic library entries
 - Possibly have the bot create a role for itself on install so access can be more easily configured?
 
 
