@@ -1,6 +1,6 @@
 # ficfeed
-v0.3.0-beta - AO3 ficfeed Discord bot Pre-release
-Authors: shantismurf and geodebreaker 
+v0.3.0-beta - AO3 ficfeed Discord bot (pre-release)
+Authors: shantismurf and geodebreaker
 Discord: https://discord.gg/XK8AtYVdQU
 
 Purpose:
