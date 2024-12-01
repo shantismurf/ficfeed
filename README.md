@@ -11,10 +11,10 @@ Release History:
   - Final major revision to code.
   - Now processes series and collection links as well as works.
   - Added a skip prefix that suppresses the posting process if:
-  - the link is preceded by two underlines separated by a space with another space after: 
-  - `_ _ https...` 
-  - Also works before links with discord embed suppression: 
-  - `_ _ <https...>`
+   - the link is preceded by two underlines separated by a space with another space after: 
+    - `_ _ https...` 
+   - Also works before links with discord embed suppression: 
+    - `_ _ <https...>`
 - v0.2.0 Release:
   - Reworked the bot to work instantaneously when a message is posted to a public channel using the discord.js API.
 
