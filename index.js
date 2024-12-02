@@ -43,7 +43,7 @@ client.on('messageCreate', message => {
     while ((match = urlRegex.exec(message.content)) !== null) {
         let url = match[0]; // get one URL from the array
         let linkMatch = urlRegexLookbehind.exec(message.content); //look for any two special characters before it
-        console.log('look behind: ' +(linkMatch ? linkMatch[0] : message.content));
+        //console.log('look behind: ' +(linkMatch ? linkMatch[0] : message.content));
         if (linkMatch) {
             let prefix = linkMatch[1]; // get the two characters before the URL
             if (['_ _ ', ' _ <'].includes(prefix)) { //if they match a skip prefix
@@ -86,6 +86,7 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                     ao3.workRating === "General Audiences" ? "General" :
                         ao3.workRating === "Teen And Up Audiences" ? "Teen" :
                             ao3.workRating;
+                let workAuthor = ao3.workAuthor.replace(/\(.*$/, "").trim();
                 responseText = new EmbedBuilder()
                     .setColor(
                         ({ //compare text to ratingstr and set the appropriate color
@@ -99,8 +100,8 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                     .setTitle(ao3.workTitle.substring(0, 1024))
                     .setURL(linkURL)
                     .setAuthor({
-                        name: 'A work by ' + ao3.workAuthor,
-                        url: `http://archiveofourown.org/users/${ao3.workAuthor}`
+                        name: 'A work by ' + ao3.workAuthor, //display full author name
+                        url: `http://archiveofourown.org/users/${workAuthor}` //only link main name
                     })
                     .setDescription(
                         ` Work posted by <@${msgAuthor}> in ` +
@@ -108,8 +109,8 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                     );
                 if (ao3.workSeries !== '') { //add series text first, if it exists
                     responseText.addFields({
-                        name: '',
-                        value: ao3.workSeries.substring(0, 1024)
+                        name: '\t',
+                        value: ao3.workSeries//.substring(0, 1024)
                     });
                 }
                 if (ao3.workPublished) {
@@ -188,6 +189,7 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                 //set limits on description string length and append elipsis if truncated
                 let descriptionstr = (ao3.seriesDescription ?? 'None').substring(0, 400);
                 descriptionstr = descriptionstr.length == 400 ? descriptionstr + ' ...' : descriptionstr;
+                let seriesCreator = ao3.seriesCreator.replace(/\(.*$/, "").trim();
                 responseText = new EmbedBuilder()
                     .setColor(0xD7A9F1)
                     .setTitle(ao3.seriesTitle)
@@ -197,8 +199,8 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                         `in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
                     )
                     .setAuthor({
-                        name: 'A series by ' + ao3.seriesCreator,
-                        url: 'https://archiveofourown.org/users/' + ao3.seriesCreator
+                        name: 'A series by ' + ao3.seriesCreator, //display full name
+                        url: 'https://archiveofourown.org/users/' + seriesCreator //only link the main name
                     })
                     .addFields(
                         {
@@ -207,7 +209,7 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                         },
                         {
                             name: 'Description',
-                            value: descriptionstr
+                            value: (descriptionstr == '' ? '\t' : descriptionstr)
                         },
                         {
                             name: 'Words | Works',
@@ -252,7 +254,7 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                 responseText.setFooter({ text: `Status: (${ao3.collectionType})` });
             }
         }
-        console.log(`9 - responseText:${JSON.stringify(responseText)}`);
+        console.log(`responseText: ${JSON.stringify(responseText)}`);
         //send the message
         responseText = await feedChannel.send({ embeds: [responseText] });
     } catch (error) {
@@ -509,7 +511,7 @@ async function ao3api(link) {
             }
             console.log(`Collection ${link} processed at ${now.toISOString().replace(/\.\d+Z$/, 'Z')} had ${errorCount} error(s).`);
         }
-        console.log(`${errorCount}-metadata :${JSON.stringify(metadata)}`);
+        console.log(`metadata :${JSON.stringify(metadata)}`);
         if (errorCount >= 5) {
             return { error: true };
         }
