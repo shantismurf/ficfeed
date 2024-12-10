@@ -182,8 +182,8 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                     }
                 )
                     .setFooter({
-                        text: 'Hits: ' + ao3.workHits + ' | Kudos: ' + (ao3.workKudos ?? 0) +
-                            ' | Comments: ' + (ao3.workComments ?? 0)
+                        text: 'Comments: ' + (ao3.workComments ?? 0) + ' | Bookmarks: ' + (ao3.workBookmarks ?? 0) +
+                            ' | Kudos: ' + (ao3.workKudos ?? 0) + ' | Hits: ' + (ao3.workHits ?? 0) 	
                     });
             } else if (ao3.type == 'series') {
                 //set limits on description string length and append elipsis if truncated
@@ -309,29 +309,28 @@ async function ao3api(link) {
             dataArray = await getData(responseText, errorCount, strType, strRegex);
             metadata.workTitle = dataArray[0].trim();
             errorCount = dataArray[1];
-            //console.log(`workTitle: ${metadata.workTitle} = ${dataArray[0]}`);
             strType = 'author';
             strRegex = /<a rel="author" href="[^"]+">(.*?)<\/a>/s;
             dataArray = await getData(responseText, errorCount, strType, strRegex);
             metadata.workAuthor = dataArray[0];
             errorCount = dataArray[1];
-            //console.log(`workAuthor: ${metadata.workAuthor} = ${dataArray[1]}`);
-            if (!metadata.workAuthor) {
-                metadata.workAuthor = '';
-            }
+            metadata.workAuthor = (!metadata.workAuthor ? '' : metadata.workAuthor);
             strType = 'published date';
             strRegex = /<dd class="published">(.*?)<\/dd>/;
             dataArray = await getData(responseText, errorCount, strType, strRegex);
             metadata.workPublished = dataArray[0];
             errorCount = dataArray[1];
-            strType = 'series';
-            strRegex = /<a href="[\S]">(.*?)<\/a>/;
-            metadata.workBookmarks = responseText.match(strRegex);
-            strRegex = /<span class="series"><span class="position">(.*?)<a href="(.*?)">(.*?)<\/a><\/span>/;
-            const seriesArray = responseText.match(strRegex);
+            strType = 'bookmarks';
+            strRegex = /\/bookmarks">(\d+)<\/a>/;
+            dataArray = await getData(responseText, errorCount, strType, strRegex);
+            metadata.workBookmarks = dataArray[0];
+            errorCount = dataArray[1];
+            strType = 'completed';
             let workComplete = (responseText.match(/<dt class=\"status\">Completed:<\/dt>/) ? true : false);
-            if (metadata.workChapters == '1/1') { workComplete = true }
-            metadata.workComplete = workComplete;
+            metadata.workComplete = (metadata.workChapters == '1/1' ? true : workComplete);
+            strType = 'series';
+            strRegex = /<span class="series">\n\s+<span class="position">\n\s+(.*?)<a href="(.*?)">(.*?)<\/a>\n\s+<\/span>/;
+            const seriesArray = responseText.match(strRegex);
             if (!seriesArray) {
                 metadata.workSeries = '';
                 errorCount++;
