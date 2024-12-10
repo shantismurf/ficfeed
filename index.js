@@ -182,8 +182,10 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                     }
                 )
                     .setFooter({
-                        text: 'Comments: ' + (ao3.workComments ?? 0) + ' | Bookmarks: ' + (ao3.workBookmarks ?? 0) +
-                            ' | Kudos: ' + (ao3.workKudos ?? 0) + ' | Hits: ' + (ao3.workHits ?? 0) 	
+                        text: 'Kudos: ' + (ao3.workKudos ?? 0) + 
+                            ' | Comments: ' + (ao3.workComments ?? 0) + 
+                            ' | Bookmarks: ' + (ao3.workBookmarks ?? 0) +
+                            ' | Hits: ' + (ao3.workHits ?? 0) 	
                     });
             } else if (ao3.type == 'series') {
                 //set limits on description string length and append elipsis if truncated
