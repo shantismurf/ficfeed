@@ -16,9 +16,10 @@ const now = new Date()
 client.once(Events.ClientReady, readyClient => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
-//const systemMessage = `-# Use '//' before a link to disable the bot.`;
+//const systemMessage = `-# Use '\_ \_' before a link to disable the bot.`;
 //call the buildEmbed function with a retry loop to catch any weird errors and try again
-async function retry(buildEmbed, link, msgID, msgAuthor, msgChannel, retries = 3, delay = 1000) {
+//override with 1 retry 1/9/25 - resolved strange "Archive Down" page returned on some works, probably tripping bot protections
+async function retry(buildEmbed, link, msgID, msgAuthor, msgChannel, retries = 1) {
     for (let i = 0; i < retries; i++) {
         try {
             await buildEmbed(link, msgID, msgAuthor, msgChannel);
@@ -29,6 +30,22 @@ async function retry(buildEmbed, link, msgID, msgAuthor, msgChannel, retries = 3
             if (i === retries - 1) throw errorWithTimestamp; // Throw error on the last retry        
         }
     }
+}
+function sanitize (input) {
+    input = (!input ? '' : input);
+    input = input.replaceAll('&quot;', '\"');
+    input = input.replaceAll('&#34;', '\"');
+    input = input.replaceAll('&amp;', '&');
+    input = input.replaceAll('&#38;', '&');
+    input = input.replaceAll('&apos;', '\'');
+    input = input.replaceAll('&#39;', '\'');
+    //Special characters such as asterisks (*), underscores (_), and tildes (~) must be escaped with the \ character.
+    input = input.replaceAll(/[\*]/g, '\\*');
+    input = input.replaceAll(/[\_]/g, '\\_');
+    input = input.replaceAll(/[\~]/g, '\\~');
+    let strRegEx = /[\u{1f300}-\u{1f5ff}\u{1f900}-\u{1f9ff}\u{1f600}-\u{1f64f}\u{1f680}-\u{1f6ff}\u{2600}-\u{26ff}\u{2700}-\u{27bf}\u{1f1e6}-\u{1f1ff}\u{1f191}-\u{1f251}\u{1f004}\u{1f0cf}\u{1f170}-\u{1f171}\u{1f17e}-\u{1f17f}\u{1f18e}\u{3030}\u{2b50}\u{2b55}\u{2934}-\u{2935}\u{2b05}-\u{2b07}\u{2b1b}-\u{2b1c}\u{3297}\u{3299}\u{303d}\u{00a9}\u{00ae}\u{2122}\u{23f3}\u{24c2}\u{23e9}-\u{23ef}\u{25b6}\u{23f8}-\u{23fa}]/ug;
+    input = input.replaceAll(strRegEx, ''); //strip out emojis, idk how to handle these otherwise
+    return input;
 }
 // Listen for messages
 client.on('messageCreate', message => {
@@ -51,22 +68,43 @@ client.on('messageCreate', message => {
                 console.log(`Skip Link match: ${url}`);
             } else { //process the url normally
                 console.log(`1 - Link match: ${url}`);
-                retry(buildEmbed, url, msgID, msgAuthor, msgChannel, 3, 1000);//retry 3 times with 1 second delay
+                retry(buildEmbed, url, msgID, msgAuthor, msgChannel, 3);//retry 3 times
             }
         } else { //no characters before url, process normally
             console.log(`1 - Link match: ${url}`);
-            retry(buildEmbed, url, msgID, msgAuthor, msgChannel, 3, 1000);//retry 3 times with 1 second delay
+            retry(buildEmbed, url, msgID, msgAuthor, msgChannel, 3);//retry 3 times 
         }
     }
 });
 let linkType;
 async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
+/*
+Embed titles are limited to 256 characters
+Embed descriptions are limited to 4096 characters
+There can be up to 25 fields
+A field's name is limited to 256 characters and its value to 1024 characters
+The footer text is limited to 2048 characters
+The author name is limited to 256 characters
+The sum of all characters from all embed structures in a message must not exceed 6000 characters
+10 embeds can be sent per message
+Special characters such as asterisks (*), underscores (_), and tildes (~) must be escaped with the \ character.
+Tag cannot include the following restricted characters: , ^ * < > { } = ` ， 、 \ %
+75 is the total number of fandom, character, relationship, and additional tags that can be added to a work
+Tags may be up to 100 characters long and can include characters from most languages, numbers, spaces, and some punctuation.
+*/    
     let responseText;
     try {
         //extract data from ao3 html code into json object
         let ao3 = await ao3api(linkURL);
-        //check for restricted work error, build embed, and send
         const feedChannel = client.channels.cache.get(FEEDID);
+
+        //set user-defined parameters (someday)
+        const workauthorlength = 230; //max 230 to allow for label text (10) and possible spaces, commas, and elipsis (cannot exceed 256)
+        const worksummarylength = 400; //max 1024
+        const worktaglength = 400; //max 1024
+        const seriesdesclength = 400;
+        const worktitlelength = 256; //max 256
+
         if (ao3.error) {
             //work is restricted or unavailable 
             linkType = linkType.split(' ')[0].charAt(0).toUpperCase() + linkType.split(' ')[0].slice(1);
@@ -74,19 +112,20 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                 .setColor(0x808080)
                 .setTitle(`Preview not available. ${linkType} may be restricted or unavailable. Click here to view.`)
                 .setURL(linkURL)
-                .setDescription(`Posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`)
+                .setDescription(`Link posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`)
         } else {
             if (ao3.type == 'work') {
-                //set limits on summary and tag string lengths and append elipsis if truncated
-                let summarystr = (ao3.workSummary ?? 'None').substring(0, 400);
-                summarystr = summarystr.length == 400 ? summarystr + ' ...' : summarystr;
-                let tagstr = (ao3.workFreeform ?? 'None').substring(0, 400);
-                tagstr = tagstr.length == 400 ? tagstr + ' ...' : tagstr;
+                //set limits on authors, summary and tag string lengths and append elipsis if truncated
+                let authorstr = (ao3.workAuthor ?? 'None').substring(0, workauthorlength); 
+                authorstr = authorstr.length == workauthorlength ? authorstr + ' ...' : authorstr;
+                let summarystr = (ao3.workSummary ?? 'None').substring(0, worksummarylength);
+                summarystr = summarystr.length == worksummarylength ? summarystr + ' ...' : summarystr;
+                let tagstr = (ao3.workFreeform ?? 'None').substring(0, worktaglength);
+                tagstr = tagstr.length == worktaglength ? tagstr + ' ...' : tagstr;
                 let ratingstr = //shorten rating text
                     ao3.workRating === "General Audiences" ? "General" :
-                        ao3.workRating === "Teen And Up Audiences" ? "Teen" :
-                            ao3.workRating;
-                let workAuthor = ao3.workAuthor.replace(/\(.*$/, "").trim();
+                    ao3.workRating === "Teen And Up Audiences" ? "Teen" :
+                    ao3.workRating;
                 responseText = new EmbedBuilder()
                     .setColor(
                         ({ //compare text to ratingstr and set the appropriate color
@@ -97,45 +136,56 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                             "Explicit": 0xFF0000
                         })[ratingstr]
                     )
-                    .setTitle(ao3.workTitle.substring(0, 1024))
-                    .setURL(linkURL)
-                    .setAuthor({
-                        name: 'A work by ' + ao3.workAuthor, //display full author name
-                        url: `http://archiveofourown.org/users/${workAuthor}` //only link main name
-                    })
-                    .setDescription(
-                        ` Work posted by <@${msgAuthor}> in ` +
+                    .setTitle(ao3.workTitle.substring(0, worktitlelength))
+                    .setURL(linkURL);
+                    if (authorstr.includes(',')) { //if there is a comma in the list of authors
+                        responseText.setAuthor({
+                            name: 'A work by ' + authorstr.replace(/, \(/g, ' ('), //display full author list but no url, take out extra commas
+                        });
+                    } else  {//else strip out any psuedonym and set the url
+                        authorstr = authorstr.replace(/\(.*$/, "").trim();
+                        responseText.setAuthor({
+                            name: 'A work by ' + authorstr, //display full author name with any psuedonym, limited to 256 characters
+                            url: `http://archiveofourown.org/users/${authorstr}` //only link main name
+                        });
+                    }
+                responseText.setDescription(
+                        ` Link posted by <@${msgAuthor}> in ` +
                         `https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
                     );
                 if (ao3.workSeries !== '') { //add series text first, if it exists
                     responseText.addFields({
-                        name: '\t',
-                        value: ao3.workSeries//.substring(0, 1024)
+                        name: '\t', //name blank
+                        value: sanitize(ao3.workSeries.substring(0, 1024)) //in value because string contains link
                     });
-                }
+                }    
                 if (ao3.workPublished) {
                     let strName = 'Published';
-                    let strValue = ao3.workPublished.substring(0, 1024);
+                    let strValue = ao3.workPublished.substring(0, 100);
                     if (ao3.workComplete) { //if the work is complete
                         strName = 'Published | Completed';
                         if (ao3.workUpdated) { //and has an updated date use that
-                            strValue = strValue + ' | ' + ao3.workUpdated.substring(0, 1024);
+                            strValue = strValue + ' | ' + ao3.workUpdated.substring(0, 100);
                         } else { //if its complete but has no updated date use published date (chapters are 1/1)
                             strValue = strValue + ' | ' + strValue;
                         };
                     } else { //if workcomplete is false only print published date, unless an updated date exists
-                        let strUpdated = ao3.workUpdated ? ao3.workUpdated.substring(0, 1024) : '';
+                        let strUpdated = ao3.workUpdated ? ao3.workUpdated.substring(0, 100) : '';
                         strName = 'Published' + (strUpdated.length > 0 ? ' | Updated' : '');
                         strValue = strValue + (strUpdated.length > 0 ? ' | ' + strUpdated : '');
                     };
                     responseText.addFields({ name: strName, value: strValue, inline: true });
                 };
+              //  console.log(`4 - responseText: ${JSON.stringify(responseText)}`);
                 responseText.addFields(
                     {
                         name: 'Words | Chapters',
-                        value: (ao3.workWords + ' | ' + ao3.workChapters).substring(0, 1024),
+                        value: (ao3.workWords + ' | ' + ao3.workChapters).substring(0, 100),
                         inline: true
-                    },
+                    });
+              //      console.log(`5 - responseText: ${JSON.stringify(responseText)}`);
+
+                    responseText.addFields(
                     {//compare text to ratingstr and set the appropriate icon
                         name: 'Rating | Warning',
                         value: ({
@@ -145,40 +195,60 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                             "Mature": ':yellow_circle: ',
                             "Explicit": ':red_circle: '
                         })[ratingstr] +
-                            ratingstr + ' | ' + ao3.workWarning.substring(0, 1024)
-                    },
+                            ratingstr + ' | ' + ao3.workWarning.substring(0, 100)
+                    });
+                 //   console.log(`6 - responseText: ${JSON.stringify(responseText)}`);
+
+                    responseText.addFields(
                     {
                         name: 'Fandom',
-                        value: ao3.workFandom.substring(0, 1024),
+                        value: sanitize(ao3.workFandom.substring(0, 1024)), //work can have 75 total tags of 100 characters or less but field is limited to 1024 characters
                         inline: true
-                    },
+                    });
+             //       console.log(`7 - responseText: ${JSON.stringify(responseText)}`);
+
+                    responseText.addFields(
                     {
                         name: 'Category',
-                        value: ao3.workCategory.substring(0, 1024),
+                        value: ao3.workCategory.substring(0, 100),
                         inline: true
-                    },
+                    });
+               //     console.log(`8 - responseText: ${JSON.stringify(responseText)}`);
+
+                    responseText.addFields(
                     //blank field to make two column line break
                     {
                         name: '\t',
                         value: '\t'
-                    },
+                    });
+                    responseText.addFields(
                     {
                         name: 'Relationship',
-                        value: ao3.workRelationship,
+                        value: sanitize((ao3.workRelationship == null ? '\t' : ao3.workRelationship)),
                         inline: true
-                    },
+                    });
+           //         console.log(`9 - responseText: ${JSON.stringify(responseText)}`);
+
+                    responseText.addFields(
                     {
                         name: 'Character',
-                        value: ao3.workCharacter,
+                        //value: sanitize(ao3.workCharacter),
+                        value: (ao3.workCharacter == null ? '\t' : ao3.workCharacter),
                         inline: true
-                    },
+                    });
+          //          console.log(`10 - responseText: ${JSON.stringify(responseText)}`);
+
+                    responseText.addFields(
                     {
                         name: 'Tags',
-                        value: tagstr
-                    },
+                        value: sanitize((tagstr == null ? '\t' : tagstr))
+                    });
+          //          console.log(`11 - responseText: ${JSON.stringify(responseText)}`);
+
+                    responseText.addFields(
                     {
                         name: 'Summary',
-                        value: summarystr
+                        value: sanitize((summarystr == null ? '\t' : summarystr))
                     }
                 )
                     .setFooter({
@@ -187,24 +257,35 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                             ' | Bookmarks: ' + (ao3.workBookmarks ?? 0) +
                             ' | Hits: ' + (ao3.workHits ?? 0) 	
                     });
+          //      console.log(`5 final - ${JSON.stringify(responseText)}`);
             } else if (ao3.type == 'series') {
                 //set limits on description string length and append elipsis if truncated
-                let descriptionstr = (ao3.seriesDescription ?? 'None').substring(0, 400);
-                descriptionstr = descriptionstr.length == 400 ? descriptionstr + ' ...' : descriptionstr;
-                let seriesCreator = ao3.seriesCreator.replace(/\(.*$/, "").trim();
+                let descriptionstr = (ao3.seriesDescription ?? 'None').substring(0, seriesdesclength);
+                descriptionstr = descriptionstr.length == seriesdesclength ? descriptionstr + ' ...' : descriptionstr;
                 responseText = new EmbedBuilder()
                     .setColor(0xD7A9F1)
                     .setTitle(ao3.seriesTitle)
                     .setURL(linkURL)
                     .setDescription(
-                        `:purple_circle: Series posted by <@${msgAuthor}> ` +
+                        `:purple_circle: Link posted by <@${msgAuthor}> ` +
                         `in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
-                    )
-                    .setAuthor({
-                        name: 'A series by ' + ao3.seriesCreator, //display full name
-                        url: 'https://archiveofourown.org/users/' + seriesCreator //only link the main name
-                    })
-                    .addFields(
+                    );
+                    responseText.setDescription(
+                        ` Link posted by <@${msgAuthor}> in ` +
+                        `https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
+                    );
+                    if (ao3.seriesCreator.includes(',')) { //if there is a comma in the list of creators
+                        responseText.setAuthor({ 
+                            name: 'A series by ' + ao3.seriesCreator //display a list of all creators without a link
+                        });
+                    } else { //if its a single creator
+                        let cleanCreator = ao3.seriesCreator.replace(/\(.*$/, "").trim(); //strip out anything after an open paren
+                        responseText.setAuthor({
+                            name: 'A series by ' + ao3.seriesCreator, //display full creator name with any psuedonym
+                            url: 'https://archiveofourown.org/users/' + cleanCreator //only link the main name
+                        });                        
+                    }
+                    responseText.addFields(
                         {
                             name: 'Date Begun | Date Updated',
                             value: ao3.seriesBegun + ' | ' + ao3.seriesUpdated
@@ -217,8 +298,8 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                             name: 'Words | Works',
                             value: `${ao3.seriesWords} words in ${ao3.seriesWorks}` + (ao3.seriesWorks > 1 ? ' works' : ' work')
                         }
-                    )
-                    .setFooter({
+                    );
+                    responseText.setFooter({
                         text: 'Complete: ' + ao3.seriesComplete + ' | Bookmarks: ' + (ao3.bookmarks ?? 0)
                     })
             } else if (ao3.type == 'collection') {
@@ -226,7 +307,7 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                 responseText.setColor(0xFF6600);
                 responseText.setTitle(ao3.collectionTitle);
                 responseText.setURL(linkURL);
-                responseText.setDescription(`:orange_circle: Collection posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`);
+                responseText.setDescription(`:orange_circle: Link posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`);
                 responseText.addFields(
                     {
                         name: 'Description:',
@@ -278,7 +359,7 @@ async function getData(responseText, errorCount, strType, strRegex) {
 async function ao3api(link) {
     let errorCount = 0;
     let responseText;
-    //console.log(`3 - start of ao3api`);
+//    console.log(`2 - start of ao3api`);
     try {
         let strType = '';
         let strRegex = '';
@@ -288,7 +369,7 @@ async function ao3api(link) {
         let metadata = {};
         //check if link is for works, series, or collections
         if (link.includes("works")) {
-            //console.log(`5 - processing work`);
+   //         console.log(`3 - processing work`);
             linkType = 'work';
             metadata.type = linkType;
             //parse the data, creating variable names from each dd class 
@@ -305,18 +386,42 @@ async function ao3api(link) {
                     metadata[variableName] = ddMatch[2].trim();
                 }
             }
+//console.log(`4 - scraped data: ${JSON.stringify(metadata)}`);
             //grab data not easily scraped
             strType = 'title';
-            strRegex = /<h2 class="title heading">(.*?)<\/h2>/s;
-            dataArray = await getData(responseText, errorCount, strType, strRegex);
-            metadata.workTitle = dataArray[0].trim();
-            errorCount = dataArray[1];
+            strRegex = /<h2 class="title heading">\n\s*(.*)\n\s*<\/h2>/;
+            dataArray = strRegex.exec(responseText);
+            if (!dataArray) {
+                metadata.workTitle = '';
+                errorCount++;
+                console.log(`Does not have or failed to match ${strType}, error count: ${errorCount}`);
+            } else {
+                metadata.workTitle = dataArray[1];
+            }
+            //dataArray = await getData(responseText, errorCount, strType, strRegex);
+            //metadata.workTitle = dataArray[0].trim();
+            //errorCount = dataArray[1];
+//console.log(`5 - work title: ${metadata.workTitle}`);
+console.log(responseText.substring(0, 1000));
             strType = 'author';
-            strRegex = /<a rel="author" href="[^"]+">(.*?)<\/a>/s;
-            dataArray = await getData(responseText, errorCount, strType, strRegex);
-            metadata.workAuthor = dataArray[0];
-            errorCount = dataArray[1];
-            metadata.workAuthor = (!metadata.workAuthor ? '' : metadata.workAuthor);
+            //use regex that will skip the chapter number, else just get the author(s) 
+            strRegex = /<title>\s*.*?(.*?)\s*.*?<\/title>/;
+            dataArray = strRegex.exec(responseText); 
+            let chapterCheck = (!dataArray ? false : dataArray[1].includes("Chapter"));
+            strRegex = (chapterCheck ? 
+                /<title>\s*.*? - Chapter \d - (.*?) - / :
+                /<title>\s*.*? - (.*?) - /);
+            dataArray = strRegex.exec(responseText);
+            //dataArray = dataArray[1].match(/([^, ]+)/g);
+            let workAuthor = '';
+            if (!dataArray) {
+                metadata.workAuthor = workAuthor;
+                errorCount++;
+                console.log(`Does not have or failed to match ${strType}, error count: ${errorCount}`);
+            } else { //put all the authors into one string
+                workAuthor = dataArray[1];//.join(', ')
+                metadata.workAuthor = workAuthor;
+            }
             strType = 'published date';
             strRegex = /<dd class="published">(.*?)<\/dd>/;
             dataArray = await getData(responseText, errorCount, strType, strRegex);
@@ -331,7 +436,8 @@ async function ao3api(link) {
             let workComplete = (responseText.match(/<dt class=\"status\">Completed:<\/dt>/) ? true : false);
             metadata.workComplete = (metadata.workChapters == '1/1' ? true : workComplete);
             strType = 'series';
-            strRegex = /<span class="series">\n\s+<span class="position">\n\s+(.*?)<a href="(.*?)">(.*?)<\/a>\n\s+<\/span>/;
+//            strRegex = /<span class="series">\n\s+<span class="position">\n\s+(.*?)<a href="(.*?)">(.*?)<\/a>\n\s+<\/span>/;
+            strRegex = /<span class="series"><span class="position">(.*?)<a href="(.*?)">(.*?)<\/a><\/span>/;
             const seriesArray = responseText.match(strRegex);
             if (!seriesArray) {
                 metadata.workSeries = '';
@@ -379,11 +485,17 @@ async function ao3api(link) {
             dataArray = await getData(responseText, errorCount, strType, strRegex);
             metadata.seriesTitle = dataArray[0];
             errorCount = dataArray[1];
-            strType = 'creator';
-            strRegex = /<a rel="author" href=".*?">(.*)<\/a>/;
-            dataArray = await getData(responseText, errorCount, strType, strRegex);
-            metadata.seriesCreator = dataArray[0];
-            errorCount = dataArray[1];
+            strType = 'creator'; //crazy gymnastics to handle multiple authors
+            strRegex = /<title>\s*.*?- (.*?) -/;
+            dataArray = strRegex.exec(responseText);
+            dataArray = dataArray[1].match(/([^, ]+)/g);
+            if (!dataArray) {
+                metadata.seriesCreator = '';
+                errorCount++;
+                console.log(`Does not have or failed to match ${strType}, error count: ${errorCount}`);
+            } else {
+                metadata.seriesCreator = dataArray.join(', ');
+            }
             strType = 'begun date';
             strRegex = /<dt>Series Begun:<\/dt>\s*<dd>(.*?)<\/dd>/;
             dataArray = await getData(responseText, errorCount, strType, strRegex);
@@ -479,7 +591,8 @@ async function ao3api(link) {
             metadata.collectionType = dataArray[0];
             errorCount = dataArray[1];
             strType = 'image';
-            strRegex = /<div class="icon">[\s\S]*<img alt="" src="([^"]+)"/;
+            //strRegex = /<div class="icon">[\s\S]*<img alt="" src="([^"]+)"/;
+            strRegex = /<div class="icon">\s*<img alt=".*?" src="(.*?)"/;
             dataArray = await getData(responseText, errorCount, strType, strRegex);
             metadata.collectionImage = (dataArray[0].indexOf('http') === -1 ? `https://archiveofourown.org${dataArray[0]}` : dataArray[0]);
             errorCount = dataArray[1];
