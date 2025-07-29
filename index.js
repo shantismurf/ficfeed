@@ -166,7 +166,7 @@ async function buildEmbed(linkURL, message) {
                 if (ao3.workSeries && Array.isArray(ao3.workSeries) && ao3.workSeries.length > 0) {
                     responseText.addFields({
                         name: 'Series',
-                        value: ao3.workSeries.map(s => `Part ${s.part} of [${sanitize(s.title)}](${s.url})`).join('\n'),
+                        value: ao3.workSeries.map(s => `Part ${s.part} of [${sanitize(s.title)}](${s.url})`).join(', '),
                         inline: false
                     });
                 }
@@ -174,7 +174,7 @@ async function buildEmbed(linkURL, message) {
                 if (ao3.workCollections && Array.isArray(ao3.workCollections) && ao3.workCollections.length > 0) {
                     responseText.addFields({
                         name: 'Collections',
-                        value: ao3.workCollections.map(c => `[${sanitize(c.title)}](${c.url})`).join('\n'),
+                        value: ao3.workCollections.map(c => `[${sanitize(c.title)}](${c.url})`).join(', '),
                         inline: false
                     });
                 }
