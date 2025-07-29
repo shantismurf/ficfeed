@@ -1,0 +1,82 @@
+make a command to pass a url and notes to the bot and use it to redo the library with the pretty embeds
+
+/library url: '', notes: '', warnings: '', rating: ''
+
+if work is part of a series process it as a series? use a flag?
+
+work embed:
+                   embeds: [{
+                        title: ao3.workTitle,
+                        url: linkURL,
+                        description:                       
+                            ` Work posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`,
+                        color: ({
+                            "Not Rated": 0x808080, "General": 0x0000FF,
+                            "Teen": 0x008000, "Mature": 0xFFA500, "Explicit": 0xFF0000
+                        })[ratingstr],
+                        author: {
+                            name: 'A work by ' + ao3.workAuthor,
+                            url: `http://archiveofourown.org/users/${ao3.workAuthor}`,
+                        },
+                        fields: [
+                            {
+                                name: 'Published' + (ao3.workUpdated ? ' | Updated' : ''),
+                                value: (ao3.workPublished + (ao3.workUpdated ? ' | ' + ao3.workUpdated : '')).substring(0, 1024),
+                                inline: true
+                            },
+                            {
+                                name: 'Words | Chapters',
+                                value: (ao3.workWords + ' | ' + ao3.workChapters).substring(0, 1024),
+                                inline: true,
+                            },
+                            {
+                                name: 'Rating | Warning',
+                                value: ({
+                                    "Not Rated": ':black_circle: ', "General": ':blue_circle: ',
+                                    "Teen": ':green_circle: ', "Mature": ':yellow_circle: ', "Explicit": ':red_circle: '
+                                })[ratingstr] +  
+                                    ratingstr + ' | ' + ao3.workWarning.substring(0, 1024),
+                            },
+                            {
+                                name: 'Tags',
+                                value: tagstr,
+                                inline: true,
+                            },
+                            {
+                                name: 'Summary',
+                                value: summarystr,
+                            },
+                        ],
+                        footer: {
+                            text: ('Hits: ' + ao3.workHits + ' | Kudos: ' + (ao3.workKudos ?? 0) +
+                                ' | Comments: ' + (ao3.workComments ?? 0)).substring(0, 1024)
+                        }
+                    }]
+					if (ao3.workSeries !== '') {
+                    responseText.embeds[0].fields.unshift({
+                        name: '',
+                        value: ao3.workSeries
+                    });
+                }
+A Road from the Garden by Chrononautical
+https://archiveofourown.org/works/19180081
+Rating: Explicit
+Length: 211,284
+Warnings: Homophobic Shire
+Notes: 
+What starts off slow and sweet with Kili being raised as a Baggins and Bilbo his devoted big brother, pivots sharply when Kili's blood family shows up. Thorin and Bilbo's initial animosity turns into a scorching romance and Kili and Bilbo maintain this beautiful, unshakeable bond of brotherhood and it's all tested through death and fire, quite literally.  Bilbo carries the Ring to Mordor and Thorin is so epically heroic idek how to express….he kills so many dragons, y'all it blows my mind just thinking about it. And throughout Kili has the most lovely Shire manners and fusses about what color of ribbon to put on a posy of flowers, while killing orcs and spiders and being a gd hero. It's divine.
+Summary: 
+"Bilbo Baggins has a brother. Worried about gossiping neighbors, his parents are very careful to hide Kili's nature. Long used to hiding his own nature, Bilbo accepts the same responsibility for his brother as he grows up. But hiding anything becomes impossible when dwarves come to the Shire."
+----------- 
+Shantismurf — 7/11/2023 12:31 AM
+Clarity of Vision by Mithen
+https://archiveofourown.org/series/89896
+Rating: General Audiences
+Length: 205,477 series of 5 works
+Warnings:
+Notes: 
+Indiana Jones!Thorin, the one with the tea, amazing world building from the North to the far East and even inside Mordor ultimately in the third in the series, Clarity of Purpose, where Thorin goes on the Ring quest with Bilbo.
+Summary: 
+"In a Middle-Earth where Erebor never fell, a shadow remains in the heart of the Lonely Mountain. Bilbo Baggins finds himself drawn reluctantly into a quest that will lead him across the continent--from Bree to Lake Evendim to the icy North and beyond--with a party of five dwarves searching for an artifact that will cure the ailing King Thrór."
+---------- 
+				

@@ -1,86 +1,76 @@
-import { Client, Events, GatewayIntentBits, EmbedBuilder } from 'discord.js';
-import * as cheerio from 'cheerio';
-import axios from 'axios';
-import config from './config.json' assert { type: 'json' };
-const { TOKEN, GUILD, FEEDID } = config;
+import {Collection, Events, EmbedBuilder} from 'discord.js';
+import ao3api from './ao3api.js';
+import { DiscordClient, sanitize, userStats, formattedDate, testEnvironment } from './utilities.js';
+import fs from 'fs';
+import config from './config.json' with { type: 'json' };
+const test = testEnvironment(); //set in utilities.js
+const FEEDID = test ? config.TESTFEEDID : config.FEEDID;
+const ADULTFEEDID = test ? config.TESTADULTFEEDID : config.ADULTFEEDID;
+const TOKEN = test ? config.TESTTOKEN : config.TOKEN;
+const GUILD = config.GUILD;
+
 // Create a new client instance
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildMembers,
-    ],
-});
-const now = new Date()
-// When the client is ready, run this code (only once).
-client.once(Events.ClientReady, readyClient => {
-    console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-});
-async function fetchDataWithHeaders(url) {
-    const headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'From': 'shantismurf@gmail.com'
-    };
-    let retryCount = 0;
-    const maxRetries = 3;
-    while (retryCount < maxRetries) {
-        try {
-            const response = await axios.get(url, { headers });
-            const $ = cheerio.load(response.data);
-            return $;
-        } catch (error) {
-            if (error.response && error.response.headers['retry-after']) {
-                const retryAfter = parseInt(error.response.headers['retry-after']);
-                console.log(`Retrying in ${retryAfter} seconds...`);
-                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
-            } else {
-                console.log(" Retrying...");
-                await new Promise(resolve => setTimeout(resolve, 1000)); // default to 1 second delay
-            }
-            retryCount++;
-            if (retryCount === maxRetries) {
-                console.error("Max retries exceeded");
-                throw error; // rethrow the error so it can be caught by the caller
-            }
+const client = DiscordClient.getInstance();
+// Register all files in the commands directory
+client.commands = new Collection();
+async function loadCommands(dir) {
+    try {
+      const files = await fs.promises.readdir(dir);
+      for (const file of files) {
+        const filePath = `${dir}/${file}`;
+        const stat = await fs.promises.stat(filePath);
+        if (stat.isDirectory()) {
+          await loadCommands(filePath);
+        } else if (file.endsWith('.js')) {
+          const command = await import(filePath);
+          if (command.default && command.default.data) {
+            console.log(`Loaded command: ${command.default.data.name}`);
+            client.commands.set(command.default.data.name, command.default);
+          } else {
+            console.log(`Skipping file ${filePath} as it doesn't export a command`);
+          }
         }
+      }
+    } catch (error) {
+      console.error(error);
     }
-}
-function sanitize(input) {
-    input = (!input ? '' : input);
-    input = input
-        .replace(/&quot;|&#34;/g, '\"')
-        .replace(/&amp;|&#38;/g, '&')
-        .replace(/&apos;|&#39;/g, '\'')
-        .replace(/&nbsp;/g, ' ');
-    //Special characters such as asterisks (*), underscores (_), and tildes (~) 
-    //that are to be displayed must be escaped with the \ character.
-    input = input
-        .replace(/[\*]/g, '\\*')
-        .replace(/[\_]/g, '\\_')
-        .replace(/[\~]/g, '\\~');
-    //replace common html tags with markdown
-    input = input
-        .replace(/<p[^>]*>/gi, '')
-        .replace(/<\/p>/gi, '\n\n')
-        .replace(/<s>/gi, '~~')
-        .replace(/<\/s>/gi, '~~')
-        .replace(/<i>/gi, '*')
-        .replace(/<\/i>/gi, '*')
-        .replace(/<b>/gi, '**')
-        .replace(/<\/b>/gi, '**')
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<[^>]*>/gi, '')
-        .replace(/\n\n\n/gi, '\n\n'); //remove excess new lines
-    return input;
-}
+  }
+// When the client is ready, run this code (only once).
+client.once(Events.ClientReady, async () => {
+    console.log(`Ready! Logged in as ${client.user.tag}`);
+    await loadCommands('./commands');
+});
+// Listen for slash commands
+client.on(Events.InteractionCreate, async interaction => {
+    if (interaction.isChatInputCommand()) {
+        // Handle slash commands
+        console.log(`${formattedDate()}: ${interaction.user.username} in #${interaction.channel.name} triggered ${interaction.commandName}.`);
+        try {
+            const command = interaction.client.commands.get(interaction.commandName);
+            await command.execute(interaction);
+        } catch (e) {
+            console.log(e);
+        }
+    } else if (interaction.isModalSubmit()) {
+        // Handle modal submissions
+        if (interaction.customId === 'trackAo3Modal') {
+            const workUrl = interaction.fields.getTextInputValue('workUrl');
+            const status = interaction.fields.getTextInputValue('status') || 'to read';
+            const notes = interaction.fields.getTextInputValue('notes') || '';
+            // Call your tracker function here
+            await trackAo3Link(interaction.user.id, workUrl, status, '', '', notes);
+            await interaction.reply({ content: 'Tracker updated!', ephemeral: true });
+        }
+        // Add more modal handlers here as needed
+    }
+});
 // Listen for messages
 //const systemMessage = `-# Use '\_ \_' before a link to disable the bot.`;
 client.on('messageCreate', async message => {
-    if (message.author.bot) return; // Ignore messages from bots  
+    if (message.author.bot) return; // Ignore messages from bots 
+    if (JSON.stringify(message.author.id) == '426071848342781963') nololShanti(message); //remove lol from the end of my messages
     const msgID = message.id;
-    const msgAuthor = message.author.id;
+ //   const msgAuthor = message.author.id;
     const msgChannel = message.channel.id;
     const urlRegex = /https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^>\]\)"\s]+/g;
     const urlRegexLookbehind = /([^a-zA-Z0-9]{4})\b(https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^>\]\)"\s]+)/g;
@@ -93,50 +83,46 @@ client.on('messageCreate', async message => {
         if (linkMatch) {
             let prefix = linkMatch[1]; // get the two characters before the URL
             if (['_ _ ', ' _ <'].includes(prefix)) { //if they match a skip prefix
-                console.log(`Skip Prefix Found: ${prefix}`);
-                console.log(`Skip Link match: ${url}`);
+                console.log(`***Skip Prefix posted in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}: "${prefix}" used to skip link ${url} at ${formattedDate()}`);
             } else { //process the url normally
-                console.log(`Link match: ${url}`);
-                await buildEmbed(url, msgID, msgAuthor, msgChannel);
+                console.log(`***Link match at ${formattedDate()}: ${url}`);
+                //await buildEmbed(url, msgID, msgAuthor, msgChannel);
+                await buildEmbed(url, message);
             }
         } else { //no characters before url, process normally
-            console.log(`Link match: ${url}`);
-            await buildEmbed(url, msgID, msgAuthor, msgChannel);
+            console.log(`***Link match at ${formattedDate()}: ${url}`);
+            //await buildEmbed(url, msgID, msgAuthor, msgChannel);
+            await buildEmbed(url, message);
         }
     }
 });
-async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
-    /*
-    Embed titles are limited to 256 characters
-    Embed descriptions are limited to 4096 characters
-    There can be up to 25 fields
-    A field's name is limited to 256 characters and its value to 1024 characters
-    The footer text is limited to 2048 characters
-    The author name is limited to 256 characters
-    The sum of all characters from all embed structures in a message must not exceed 6000 characters
-    10 embeds can be sent per message
-    Special characters such as asterisks (*), underscores (_), and tildes (~) must be escaped with the \ character.
-    Tag cannot include the following restricted characters: , ^ * < > { } = ` ， 、 \ %
-    75 is the total number of fandom, character, relationship, and additional tags that can be added to a work
-    Tags may be up to 100 characters long and can include characters from most languages, numbers, spaces, and some punctuation.
-    */
+
+async function buildEmbed(linkURL, message) {    
+    const msgID = message.id;
+    const msgAuthor = message.author.id;
+    const msgChannel = message.channel.id;
     let responseText;
     try {
         //ao3api extracts data from ao3 html code into json object
-        let ao3 = await ao3api(linkURL);
+        const ao3 = await ao3api(linkURL, message);
         const feedChannel = client.channels.cache.get(FEEDID);
-        //set user-defined parameters (someday)
-        const workauthorlength = 230; //max 230 to allow for label text (10) and possible spaces, commas, and elipsis (cannot exceed 256)
-        const worksummarylength = 400; //max 1024
-        const worktaglength = 400; //max 1024
-        const seriesdesclength = 400;
-        const worktitlelength = 256; //max 256
+        const adultFeedChannel = client.channels.cache.get(ADULTFEEDID);
+        const stats = userStats();
+        const processAdultLinks = stats.processAdultLinks;
+        const workauthorlength = stats.workauthorlength;
+        const worksummarylength = stats.worksummarylength; 
+        const worktaglength = stats.worktaglength; 
+        const seriesdesclength = stats.seriesdesclength;
+        const worktitlelength = stats.worktitlelength;
         const linkType = (!ao3.type ? 'link' : ao3.type);
-        if (ao3.error) {
+        if (ao3.setError) {
+            console.log(`*!*!*!Restricted work or error at ${formattedDate()}`);
             //link is restricted or unavailable 
             responseText = new EmbedBuilder()
                 .setColor(0x808080)
-                .setTitle(`Preview not available. The ${linkType} may be restricted or unavailable. Click here to view.\n(${ao3.error ? /code\s.*/.exec(ao3.error) : 'Restricted'})`)
+                //.setTitle(`Preview not available. The ${linkType} may be restricted or unavailable. Click here to view.
+                //    \n(${ao3.error?.match(/code\s.*/)?.[0] ?? 'Restricted'})`)
+                .setTitle(`Preview not available. The ${linkType} may be restricted or the Archive is unavailable. Click here to view.\n(${/code\s.*/.exec(ao3.error) ?? ao3.setError})\n`)
                 .setURL(linkURL)
                 .setDescription(`Link posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`)
         } else {
@@ -146,12 +132,13 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                 authorstr = authorstr.length == workauthorlength ? authorstr + ' ...' : authorstr;
                 let summarystr = (ao3.workSummary ?? 'None').substring(0, worksummarylength);
                 summarystr = summarystr.length == worksummarylength ? summarystr + ' ...' : summarystr;
-                let tagstr = (ao3.workFreeform ?? 'None').substring(0, worktaglength);
-                tagstr = tagstr.length == worktaglength ? tagstr + ' ...' : tagstr;
+                let tagstr = (ao3.workFreeform && ao3.workFreeform.trim() !== '' ? ao3.workFreeform : 'None').substring(0, worktaglength);
+                tagstr = tagstr.length === worktaglength ? tagstr + ' ...' : tagstr;
+                if (test) console.log(`00-tagstr: ${tagstr}`);
                 let ratingstr = //shorten rating text, just cause its annoying
                     ao3.workRating === "General Audiences" ? "General" :
-                        ao3.workRating === "Teen And Up Audiences" ? "Teen" :
-                            ao3.workRating;
+                    ao3.workRating === "Teen And Up Audiences" ? "Teen" :
+                    ao3.workRating;
                 responseText = new EmbedBuilder()
                     .setColor(
                         ({ //compare text to ratingstr and set the appropriate color
@@ -164,33 +151,48 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                     )
                     .setTitle(ao3.workTitle.substring(0, worktitlelength))
                     .setURL(linkURL);
-                //build url without psuedonyms
-                const authorUrl = authorstr.includes(',') ? null : 'http://archiveofourown.org/users/' + authorstr.replace(/\(.*$/, "").trim();
+                const authorstrmatch = authorstr.match(/\((.*?)\)/)?.[1]; //check for pseudonym in parentheses
+                const authorUrl = authorstr.includes(',')
+                    ? null //build url only if single author, use psuedonym if present
+                    : `http://archiveofourown.org/users/${authorstrmatch ? authorstrmatch : authorstr.trim()}`;
+
                 responseText.setAuthor({
                     name: 'A work by ' + authorstr,
                     ...(authorUrl && { url: authorUrl }) //only add link to single author
-                  });
+                });
                 responseText.setDescription(
                     ` Link posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
                 );
-                if (ao3.workSeries) {// != '') { 
+                if (ao3.workSeries && Array.isArray(ao3.workSeries) && ao3.workSeries.length > 0) {
                     responseText.addFields({
-                        name: '\t',
-                        value: sanitize(ao3.workSeries) //in value because string contains link
+                        name: 'Series',
+                        value: ao3.workSeries.map(s => `Part ${s.part} of [${sanitize(s.title)}](${s.url})`).join('\n'),
+                        inline: false
                     });
                 }
+                if (test) console.log(`00-series: ${ao3.workSeries}`);
+                if (ao3.workCollections && Array.isArray(ao3.workCollections) && ao3.workCollections.length > 0) {
+                    responseText.addFields({
+                        name: 'Collections',
+                        value: ao3.workCollections.map(c => `[${sanitize(c.title)}](${c.url})`).join('\n'),
+                        inline: false
+                    });
+                }
+                if (test) console.log(`01-collections: ${ao3.workCollections}`);
                 responseText.addFields(
                     {
-                        name: 'Published | ' + ao3.workStatus,
-                        value: ao3.workPublished + ' | ' + ao3.workStatusDate,
+                        name: ao3.AdultContentWarning ? ao3.workStatus : 'Published | ' + ao3.workStatus,
+                        value: ao3.AdultContentWarning ? ao3.workPublished : ao3.workPublished + ' | ' + ao3.workStatusDate,
                         inline: true
                     });
+                if (test) console.log(`02-dates: ${ao3.workPublished} | ${ao3.workStatusDate}`);
                 responseText.addFields(
                     {
                         name: 'Words | Chapters',
                         value: ao3.workWords + ' | ' + ao3.workChapters,
                         inline: true
                     });
+                if (test) console.log(`03-words: ${ao3.workWords} | ${ao3.workChapters}`);
                 responseText.addFields(
                     {//compare text to ratingstr and set the appropriate icon
                         name: 'Rating | Warning',
@@ -203,18 +205,21 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                         })[ratingstr] + ratingstr + ' | ' +
                             ao3.workWarning.substring(0, 75) // limited only for the crazy situation that someone picks all the warnings 
                     });
+                if (test) console.log(`04-rating: ${ratingstr} | ${ao3.workWarning}`);
                 responseText.addFields(
                     {
                         name: 'Fandom',
                         value: sanitize(ao3.workFandom),
                         inline: true
                     });
+                if (test) console.log(`05-fandom: ${ao3.workFandom}`);
                 responseText.addFields(
                     {
                         name: 'Category',
                         value: ao3.workCategory,
                         inline: true
                     });
+                if (test) console.log(`06-category: ${ao3.workCategory}`);
                 responseText.addFields( //blank field to make two column line break
                     {
                         name: '\t',
@@ -226,17 +231,20 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                         value: (ao3.workRelationship ? sanitize(ao3.workRelationship) : '\t'),
                         inline: true
                     });
+                if (test) console.log(`07-Relationship: ${ao3.workRelationship}`);    
                 responseText.addFields(
                     {
                         name: 'Character',
                         value: (ao3.workCharacters ? sanitize(ao3.workCharacters) : '\t'),
                         inline: true
                     });
+                if (test) console.log(`08-Character: ${ao3.workCharacters}`);
                 responseText.addFields(
                     {
                         name: 'Tags',
                         value: sanitize((tagstr == null ? '\t' : tagstr))
                     });
+                if (test) console.log(`09-tags: ${tagstr}`);
                 responseText.addFields(
                     {
                         name: 'Summary',
@@ -249,6 +257,7 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                             ' | Bookmarks: ' + (ao3.workBookmarks ?? 0) +
                             ' | Hits: ' + (ao3.workHits ?? 0)
                     });
+                    if (test) console.log(`10-footer: ${tagstr}`);
             } else if (linkType == 'series') {
                 //set limits on description string length and append elipsis if truncated
                 let descriptionstr = (ao3.seriesDescription ?? 'None').substring(0, seriesdesclength);
@@ -266,11 +275,11 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                     `https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
                 );
                 //build url without psuedonyms
-                const authorUrl =  ao3.seriesCreator.includes(',') ? null : 'http://archiveofourown.org/users/' + authorstr.replace(/\(.*$/, "").trim();
+                const authorUrl = ao3.seriesCreator.includes(',') ? null : 'http://archiveofourown.org/users/' + authorstr.replace(/\(.*$/, "").trim();
                 responseText.setAuthor({
-                    name: 'A series by ' +  ao3.seriesCreator,
+                    name: 'A series by ' + ao3.seriesCreator,
                     ...(authorUrl && { url: authorUrl }) //only add link to single author
-                  });
+                });
                 responseText.addFields(
                     {
                         name: 'Date Begun | Date Updated',
@@ -328,159 +337,36 @@ async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
                 responseText.setFooter({ text: `Status: (${ao3.collectionType})` });
             }
         }
-        console.log(`responseText: ${JSON.stringify(responseText)}`);
-        console.log(`${ao3.type} ${linkURL} processed at ${now.toISOString().replace(/\.\d+Z$/, 'Z')}.`);
+        console.log(`***responseText: ${JSON.stringify(responseText)}`);
+        console.log(`***Link type: ${linkType}: ${linkURL} processed at ${formattedDate()}.`);
 
-        //send the message
-        responseText = await feedChannel.send({ embeds: [responseText] });
-    } catch (error) {
-        console.log(`${now.toISOString().replace(/\.\d+Z$/, 'Z')}: Error sending message: ${error}`);
-    }
-}
-async function ao3api(link) {
-    let responseText;
-    try {
-        const $ = await fetchDataWithHeaders(link);
-        let metadata = {};
-        //check if link is for works, series, or collections
-        if (link.includes("works")) {
-            metadata.type = 'work';
-            metadata.workTitle = $('h2.title.heading').text().trim();
-            // if title is not found then trigger the unavailable embed
-            if (metadata.workTitle == '') {
-                console.log('Work title not found.');
-                return { metadata, error: true }
-            };
-            const authors = $('h3.byline.heading a').map((_, a) => $(a).text()).get();
-            metadata.workAuthor = authors.join(authors.length > 1 ? ', ' : '');
-            metadata.workRating = $('dd.rating ul li a').text().trim();
-            const fields = [
-                { selector: 'dd.warning.tags', field: 'workWarning' },
-                { selector: 'dd.category', field: 'workCategory' },
-                { selector: 'dd.fandom', field: 'workFandom' },
-                { selector: 'dd.relationship', field: 'workRelationship' },
-                { selector: 'dd.character', field: 'workCharacters' },
-                { selector: 'dd.freeform', field: 'workFreeform' },
-            ];
-            fields.forEach(({ selector, field }) => {
-                const values = $(selector).find('a').map((_, a) => $(a).text()).get();
-                metadata[field] = values.join(values.length > 1 ? ', ' : '');
-            });
-            metadata.workLanguage = $('dd.language').text().trim();
-            metadata.workPublished = $('dd.published').text();
-            metadata.workChapters = $('dd.chapters').text();
-            //status does not appear if the work only has one chapter, use 'Completed' label and published date
-            metadata.workStatus = metadata.workChapters == '1/1' ? 'Completed' : $('dt.status')?.text()?.slice(0, -1);
-            metadata.workStatusDate = $('dd.status').text() ? $('dd.status').text() : metadata.workPublished;
-            metadata.workBookmarks = $('dd.bookmarks a').text();
-            metadata.workWords = $('dd.words').text();
-            metadata.workComments = $('dd.comments').text();
-            metadata.workKudos = $('dd.kudos').text();
-            metadata.workHits = $('dd.hits').text();
-            const seriesText = $('dd.series span.position').text().trim();
-            if (seriesText) {
-                const linkText = seriesText.substring(seriesText.indexOf('of') + 3);
-                const linkUrl = $('dd.series span.position a').attr('href');
-                metadata.workSeries = seriesText.replace(/of (.*)/, `of [${linkText}](https://archiveofourown.org${linkUrl})`);
-            }
-            metadata.workSummary = $('.summary blockquote').html().trim();
-
-        } else if (link.includes("series")) {
-            metadata.type = 'series';
-            metadata.seriesTitle = $('h2.heading').text();
-            // if title is not found then trigger the unavailable embed 
-            if (metadata.seriesTitle == '') {
-                console.log('Series title not found.');
-                return { metadata, error: true }
-            };
-            metadata.seriesCreator = $('.series.meta.group dt:contains("Creator")').next().text();
-            metadata.seriesBegun = $('.series.meta.group dt:contains("Series Begun:")').next().text();
-            metadata.seriesUpdated = $('.series.meta.group dt:contains("Series Updated:")').next().text();
-            metadata.seriesDescription = $('.series.meta.group dt:contains("Description:")').next().html();
-            metadata.seriesWords = $('.series.meta.group dt:contains("Words:")').next().text();
-            metadata.seriesWorks = $('.series.meta.group dt:contains("Works:")').next().text();
-            metadata.seriesBookmarks = !$('.series.meta.group dt:contains("Bookmarks:")').next().text() ? '0' : $('.series.meta.group dt:contains("Bookmarks:")').next().text();
-            metadata.seriesComplete = $('.series.meta.group dt:contains("Complete:")').next().text();
-            // build list of works, sliced to only show 5 instead of 20 works
-            let tag = $('ul.series.work.index.group');
-            let seriesWorkList = '';
-            tag.find('li').slice(0, 65).each((index, li) => {
-                const h4 = $(li).find('h4.heading');
-                const links = Array.from(h4.find('a'));
-                const itemTitle = $(links[0]).text();
-                const itemAuthor = links.length > 1 ? 'multiple authors' : $(links[1]).text();
-                if (itemTitle.length > 0) {
-                    const itemRating = $(li).find('span.rating');
-                    seriesWorkList = seriesWorkList.concat('- [' +
-                        itemTitle + '](https://archiveofourown.org/' +
-                        $(links[0]).attr('href') + ') by ' +
-                        itemAuthor + ' (' +
-                        itemRating.attr('title').substring(0, 1) + ')\n');
+        //send the message, divert or duplicate to the adultFeedChannel
+        if (linkType === 'work') {
+            const workRating = ao3.workRating ?? '';
+            if (processAdultLinks == 1) {
+                // Send all posts to feedChannel
+                await feedChannel.send({ embeds: [responseText] });
+            } else if (processAdultLinks == 2) {
+                // Send all posts to feedChannel and duplicate adult posts to adultFeedChannel
+                await feedChannel.send({ embeds: [responseText] });
+                if (workRating.includes('Mature') || workRating.includes('Explicit')) {
+                    await adultFeedChannel.send({ embeds: [responseText] });
+                    console.log(`***processAdultLinks: ${processAdultLinks}, rating: ${workRating}, adultFeedChannel: ${adultFeedChannel.name}`);
                 }
-            });
-            metadata.seriesWorkList = seriesWorkList;
-
-        } else if (link.includes("collections")) {
-            metadata.type = 'collection';
-            metadata.collectionTitle = $('h2.heading').text();
-            // if title is not found then trigger the unavailable embed 
-            if (metadata.collectionTitle == '') {
-                console.log('Collection title not found.');
-                return { metadata, error: true }
-            };
-            let tag = $('div#dashboard');
-            tag = tag.find('ul.navigation.actions').first();
-            tag.find('li').each((index, li) => {
-                const a = $(li).find('a');
-                const links = Array.from(a);
-                const variablename = 'collectionStats' + index;
-                metadata[variablename] = $(links[0]).text();
-            });
-            metadata.collectionSubcollections = metadata.collectionStats2;
-            tag = tag.nextAll('ul.navigation.actions').first();
-            tag.find('li').each((index, li) => {
-                const a = $(li).find('a');
-                const links = Array.from(a);
-                const variablename = 'collectionStats' + index;
-                metadata[variablename] = $(links[0]).text();
-            });
-            const listCount = $('ul.index.group').find('li')
-            let collectionWorkList = '';
-            if (listCount.length == 0) {
-                collectionWorkList = 'No items found in collection';
-            } else {
-                $('ul.index.group').find('li').each((index, li) => {
-                    const h4 = $(li).find('h4.heading');
-                    const links = Array.from(h4.find('a'));
-                    const itemTitle = $(links[0]).text();
-                    const itemAuthor = $(links[1]).text();
-                    if (itemTitle.length > 0) {
-                        const itemRating = $(li).find('span.rating');
-                        collectionWorkList = collectionWorkList.concat('- [' + itemTitle + '](https://archiveofourown.org/' + $(links[0]).attr('href') + ') by ' + itemAuthor + ' (' + itemRating.attr('title').substring(0, 1) + ')\n');
-                    }
-                });
+            } else if (processAdultLinks == 3) {
+                //Filter adult works to adultFeedChannel and Send other ratings to feedChannel
+                if (workRating.includes('Mature') || workRating.includes('Explicit')) {
+                    await adultFeedChannel.send({ embeds: [responseText] });
+                } else {
+                    await feedChannel.send({ embeds: [responseText] });
+                }
             }
-            metadata.collectionWorkList = collectionWorkList;
-            metadata.collectionFandoms = metadata.collectionStats0;
-            metadata.collectionWorks = metadata.collectionStats1;
-            metadata.collectionBookmarkedItems = metadata.collectionStats2;
-            delete metadata.collectionStats0;
-            delete metadata.collectionStats1;
-            delete metadata.collectionStats2;
-            delete metadata.collectionStats3;
-            delete metadata.collectionStats4;
-            delete metadata.collectionStats5;
-            metadata.collectionListboxHeading = !$('div.listbox.group h3.heading')?.text()?.trim() ? '\t' : $('div.listbox.group h3.heading').text().trim();
-            metadata.collectionType = $('p.type').text().match(/\((.*)\)/)[1].trim();
-            metadata.collectionImage = $('div.icon').find('img').attr('src');
-            metadata.collectionDescription = $('div.primary.header.module').find('blockquote.userstuff').html().trim(); 
+        } else {
+            // Send series and collections directly to the feedChannel
+            await feedChannel.send({ embeds: [responseText] });
         }
-        console.log('Metadata:\n' + metadata);
-        return metadata;
-    } catch (e) {
-        console.log(`Link ${link} failed to be processed at ${now.toISOString().replace(/\.\d+Z$/, 'Z')}.`);
-        console.log(e)
-        return { error: e }
+    } catch (error) {
+        console.log(`*!*!*!Error sending message at ${formattedDate()}: ${error}`);
     }
 }
 // Log in to Discord with your client's token
