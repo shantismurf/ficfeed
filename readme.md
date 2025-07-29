@@ -1,19 +1,20 @@
 ficfeed
-v0.5.0-beta - AO3 ficfeed Discord bot (pre-release)
-Author: shantismurf
-Discord: https://discord.gg/XK8AtYVdQU
-Purpose:
-  Aggregates all links to AO3 works, series, and collections mentioned in any
+- v0.5.0-beta - AO3 ficfeed Discord bot (pre-release)
+- Author: shantismurf
+- Discord: https://discord.gg/XK8AtYVdQU
+- Purpose:
+  - Aggregates all links to AO3 works, series, and collections mentioned in any
   public channel into a single channel where they are reposted as embeds with 
   work data. Mature, Explicit and unrated works can be filtered to an adult-
   only channel. Restricted works are linked with no information.
+  - Also includes a command to display word count per chapter of a work.
   
-  Also includes a command to display word count per chapter of a work.
   
 To Install:
-Host the files on your own server. 
-Enable all Privileged Gateway Intents in the Discord Developer Panel.
-Create a config.json file in the application's root directory:
+- Host the files on your own server. 
+- Enable all Privileged Gateway Intents in the Discord Developer Panel.
+- Create a config.json file in the application's root directory:
+```
 {
     "TOKEN": "(Discord Token)",
     "GUILD": "(Server ID)",
@@ -27,8 +28,7 @@ Create a config.json file in the application's root directory:
     "DBPASSWORD": "(db password)",
     "DBDATABASE": "(db name)"
 }
-
-
+```
 Release History:
 
 v0.5.0-beta
