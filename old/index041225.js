@@ -1,17 +1,20 @@
 import {Collection, Events, EmbedBuilder} from 'discord.js';
 import ao3api from './ao3api.js';
-import { DiscordClient, sanitize, userStats, formattedDate, testEnvironment } from './utilities.js';
+import {DiscordClient,sanitize, userStats, formattedDate} from './utilities.js';
 import fs from 'fs';
-import config from './config.json' with { type: 'json' };
-const test = testEnvironment(); //set in utilities.js
+import config from './config.json' with {type: 'json'};
+  
+const test = false; //set in ao3api.js and index.js
+
 const FEEDID = test ? config.TESTFEEDID : config.FEEDID;
 const ADULTFEEDID = test ? config.TESTADULTFEEDID : config.ADULTFEEDID;
+//const BOTUSERID = test ? config.TESTCLIENTID : config.CLIENTID;
 const TOKEN = test ? config.TESTTOKEN : config.TOKEN;
 const GUILD = config.GUILD;
 
 // Create a new client instance
 const client = DiscordClient.getInstance();
-// Register all files in the commands directory
+// Create initiate slash commands
 client.commands = new Collection();
 async function loadCommands(dir) {
     try {
@@ -42,35 +45,36 @@ client.once(Events.ClientReady, async () => {
 });
 // Listen for slash commands
 client.on(Events.InteractionCreate, async interaction => {
-    if (interaction.isChatInputCommand()) {
-        // Handle slash commands
-        console.log(`${formattedDate()}: ${interaction.user.username} in #${interaction.channel.name} triggered ${interaction.commandName}.`);
-        try {
-            const command = interaction.client.commands.get(interaction.commandName);
-            await command.execute(interaction);
-        } catch (e) {
-            console.log(e);
-        }
-    } else if (interaction.isModalSubmit()) {
-        // Handle modal submissions
-        if (interaction.customId === 'trackAo3Modal') {
-            const workUrl = interaction.fields.getTextInputValue('workUrl');
-            const status = interaction.fields.getTextInputValue('status') || 'to read';
-            const notes = interaction.fields.getTextInputValue('notes') || '';
-            // Call your tracker function here
-            await trackAo3Link(interaction.user.id, workUrl, status, '', '', notes);
-            await interaction.reply({ content: 'Tracker updated!', ephemeral: true });
-        }
-        // Add more modal handlers here as needed
+    if (!interaction.isChatInputCommand()) return;
+    console.log(`${interaction.user.username} in #${interaction.channel.name} triggered ${interaction.commandName}.`);
+    try {
+        //client.commands.get(interaction.commandName)?.run(client, interaction);
+        const command = interaction.client.commands.get(interaction.commandName);
+        await command.execute(interaction);
+    } catch (e) {
+        console.log(e);
     }
 });
+/*
+import { setTimeout } from 'node:timers/promises';
+const wait = setTimeout;
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isChatInputCommand()) return;
+	if (interaction.commandName === 'library') {
+		await interaction.deferReply();
+		await wait(4_000);
+		await interaction.editReply('Library entry submitted.');
+
+	}
+});
+*/
 // Listen for messages
 //const systemMessage = `-# Use '\_ \_' before a link to disable the bot.`;
 client.on('messageCreate', async message => {
     if (message.author.bot) return; // Ignore messages from bots 
     if (JSON.stringify(message.author.id) == '426071848342781963') nololShanti(message); //remove lol from the end of my messages
     const msgID = message.id;
- //   const msgAuthor = message.author.id;
+    const msgAuthor = message.author.id;
     const msgChannel = message.channel.id;
     const urlRegex = /https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^>\]\)"\s]+/g;
     const urlRegexLookbehind = /([^a-zA-Z0-9]{4})\b(https?:\/\/archiveofourown\.org\/(works|series)\/\d{1,12}|https?:\/\/archiveofourown\.org\/collections\/[^>\]\)"\s]+)/g;
@@ -86,25 +90,38 @@ client.on('messageCreate', async message => {
                 console.log(`***Skip Prefix posted in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}: "${prefix}" used to skip link ${url} at ${formattedDate()}`);
             } else { //process the url normally
                 console.log(`***Link match at ${formattedDate()}: ${url}`);
-                //await buildEmbed(url, msgID, msgAuthor, msgChannel);
-                await buildEmbed(url, message);
+                await buildEmbed(url, msgID, msgAuthor, msgChannel);
             }
         } else { //no characters before url, process normally
             console.log(`***Link match at ${formattedDate()}: ${url}`);
-            //await buildEmbed(url, msgID, msgAuthor, msgChannel);
-            await buildEmbed(url, message);
+            await buildEmbed(url, msgID, msgAuthor, msgChannel);
         }
     }
 });
-
-async function buildEmbed(linkURL, message) {    
-    const msgID = message.id;
-    const msgAuthor = message.author.id;
-    const msgChannel = message.channel.id;
+const dailyLOLCount = {};
+async function nololShanti(message) {
+    const now = formattedDate();
+    const today = now.slice(0, 10);
+    if (message.content.endsWith('lol')){
+        await message.react('❕'); 
+        dailyLOLCount[today] = (dailyLOLCount[today] || 0) + 1; //increment daily lol count
+        console.log(`(${now} - lol at https://discord.com/channels/${GUILD}/${message.channel.id}/${message.id}, ${dailyLOLCount[today]} times today)`);
+    } 
+}
+// async function batsignal(){
+//   const feedChannel = client.channels.cache.get(FEEDID);
+//   await feedChannel.send(`https://i.imgur.com/Wcg7amv.jpeg\n-# image by [@notgilderoylockhart](https://www.tumblr.com/notgilderoylockhart/776922836507951104/)`);
+// }
+// "subscribing to a fic isn’t enough I need the author to blast a bat signal into the night sky whenever they update"
+// register a list of members ao3 names linked to discord ids, 
+// if updated date is today, do a lookup on the list, check if they are still a member? update list when user leaves?
+// where to store? json? sql?
+//  if member is in list, send batsignal()
+async function buildEmbed(linkURL, msgID, msgAuthor, msgChannel) {
     let responseText;
     try {
         //ao3api extracts data from ao3 html code into json object
-        const ao3 = await ao3api(linkURL, message);
+        const ao3 = await ao3api(linkURL);
         const feedChannel = client.channels.cache.get(FEEDID);
         const adultFeedChannel = client.channels.cache.get(ADULTFEEDID);
         const stats = userStats();
@@ -115,14 +132,13 @@ async function buildEmbed(linkURL, message) {
         const seriesdesclength = stats.seriesdesclength;
         const worktitlelength = stats.worktitlelength;
         const linkType = (!ao3.type ? 'link' : ao3.type);
-        if (ao3.setError) {
-            console.log(`*!*!*!Restricted work or error at ${formattedDate()}`);
+        if (ao3.error) {
             //link is restricted or unavailable 
             responseText = new EmbedBuilder()
                 .setColor(0x808080)
                 //.setTitle(`Preview not available. The ${linkType} may be restricted or unavailable. Click here to view.
                 //    \n(${ao3.error?.match(/code\s.*/)?.[0] ?? 'Restricted'})`)
-                .setTitle(`Preview not available. The ${linkType} may be restricted or the Archive is unavailable. Click here to view.\n(${/code\s.*/.exec(ao3.error) ?? ao3.setError})\n`)
+                .setTitle(`Preview not available. The ${linkType} may be restricted or the Archive is unavailable. Click here to view.\n(${/code\s.*/.exec(ao3.error) ?? 'Restricted'})\n`)
                 .setURL(linkURL)
                 .setDescription(`Link posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`)
         } else {
@@ -132,13 +148,12 @@ async function buildEmbed(linkURL, message) {
                 authorstr = authorstr.length == workauthorlength ? authorstr + ' ...' : authorstr;
                 let summarystr = (ao3.workSummary ?? 'None').substring(0, worksummarylength);
                 summarystr = summarystr.length == worksummarylength ? summarystr + ' ...' : summarystr;
-                let tagstr = (ao3.workFreeform && ao3.workFreeform.trim() !== '' ? ao3.workFreeform : 'None').substring(0, worktaglength);
-                tagstr = tagstr.length === worktaglength ? tagstr + ' ...' : tagstr;
-                if (test) console.log(`00-tagstr: ${tagstr}`);
+                let tagstr = (ao3.workFreeform ?? 'None').substring(0, worktaglength);
+                tagstr = tagstr.length == worktaglength ? tagstr + ' ...' : tagstr;
                 let ratingstr = //shorten rating text, just cause its annoying
                     ao3.workRating === "General Audiences" ? "General" :
-                    ao3.workRating === "Teen And Up Audiences" ? "Teen" :
-                    ao3.workRating;
+                        ao3.workRating === "Teen And Up Audiences" ? "Teen" :
+                            ao3.workRating;
                 responseText = new EmbedBuilder()
                     .setColor(
                         ({ //compare text to ratingstr and set the appropriate color
@@ -151,7 +166,7 @@ async function buildEmbed(linkURL, message) {
                     )
                     .setTitle(ao3.workTitle.substring(0, worktitlelength))
                     .setURL(linkURL);
-                const authorstrmatch = authorstr.match(/\((.*?)\)/)?.[1]; //check for pseudonym in parentheses
+                const authorstrmatch = authorstr.match(/\((.*?)\)/)?.[1];
                 const authorUrl = authorstr.includes(',')
                     ? null //build url only if single author, use psuedonym if present
                     : `http://archiveofourown.org/users/${authorstrmatch ? authorstrmatch : authorstr.trim()}`;
@@ -163,36 +178,24 @@ async function buildEmbed(linkURL, message) {
                 responseText.setDescription(
                     ` Link posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
                 );
-                if (ao3.workSeries && Array.isArray(ao3.workSeries) && ao3.workSeries.length > 0) {
+                if (ao3.workSeries) {// != '') { 
                     responseText.addFields({
-                        name: 'Series',
-                        value: ao3.workSeries.map(s => `Part ${s.part} of [${sanitize(s.title)}](${s.url})`).join('\n'),
-                        inline: false
+                        name: '\t',
+                        value: sanitize(ao3.workSeries) //in value because string contains link
                     });
                 }
-                if (test) console.log(`00-series: ${ao3.workSeries}`);
-                if (ao3.workCollections && Array.isArray(ao3.workCollections) && ao3.workCollections.length > 0) {
-                    responseText.addFields({
-                        name: 'Collections',
-                        value: ao3.workCollections.map(c => `[${sanitize(c.title)}](${c.url})`).join('\n'),
-                        inline: false
-                    });
-                }
-                if (test) console.log(`01-collections: ${ao3.workCollections}`);
                 responseText.addFields(
                     {
                         name: ao3.AdultContentWarning ? ao3.workStatus : 'Published | ' + ao3.workStatus,
                         value: ao3.AdultContentWarning ? ao3.workPublished : ao3.workPublished + ' | ' + ao3.workStatusDate,
                         inline: true
                     });
-                if (test) console.log(`02-dates: ${ao3.workPublished} | ${ao3.workStatusDate}`);
                 responseText.addFields(
                     {
                         name: 'Words | Chapters',
                         value: ao3.workWords + ' | ' + ao3.workChapters,
                         inline: true
                     });
-                if (test) console.log(`03-words: ${ao3.workWords} | ${ao3.workChapters}`);
                 responseText.addFields(
                     {//compare text to ratingstr and set the appropriate icon
                         name: 'Rating | Warning',
@@ -205,21 +208,18 @@ async function buildEmbed(linkURL, message) {
                         })[ratingstr] + ratingstr + ' | ' +
                             ao3.workWarning.substring(0, 75) // limited only for the crazy situation that someone picks all the warnings 
                     });
-                if (test) console.log(`04-rating: ${ratingstr} | ${ao3.workWarning}`);
                 responseText.addFields(
                     {
                         name: 'Fandom',
                         value: sanitize(ao3.workFandom),
                         inline: true
                     });
-                if (test) console.log(`05-fandom: ${ao3.workFandom}`);
                 responseText.addFields(
                     {
                         name: 'Category',
                         value: ao3.workCategory,
                         inline: true
                     });
-                if (test) console.log(`06-category: ${ao3.workCategory}`);
                 responseText.addFields( //blank field to make two column line break
                     {
                         name: '\t',
@@ -231,20 +231,17 @@ async function buildEmbed(linkURL, message) {
                         value: (ao3.workRelationship ? sanitize(ao3.workRelationship) : '\t'),
                         inline: true
                     });
-                if (test) console.log(`07-Relationship: ${ao3.workRelationship}`);    
                 responseText.addFields(
                     {
                         name: 'Character',
                         value: (ao3.workCharacters ? sanitize(ao3.workCharacters) : '\t'),
                         inline: true
                     });
-                if (test) console.log(`08-Character: ${ao3.workCharacters}`);
                 responseText.addFields(
                     {
                         name: 'Tags',
                         value: sanitize((tagstr == null ? '\t' : tagstr))
                     });
-                if (test) console.log(`09-tags: ${tagstr}`);
                 responseText.addFields(
                     {
                         name: 'Summary',
@@ -257,7 +254,6 @@ async function buildEmbed(linkURL, message) {
                             ' | Bookmarks: ' + (ao3.workBookmarks ?? 0) +
                             ' | Hits: ' + (ao3.workHits ?? 0)
                     });
-                    if (test) console.log(`10-footer: ${tagstr}`);
             } else if (linkType == 'series') {
                 //set limits on description string length and append elipsis if truncated
                 let descriptionstr = (ao3.seriesDescription ?? 'None').substring(0, seriesdesclength);
@@ -342,20 +338,19 @@ async function buildEmbed(linkURL, message) {
 
         //send the message, divert or duplicate to the adultFeedChannel
         if (linkType === 'work') {
-            const workRating = ao3.workRating ?? '';
             if (processAdultLinks == 1) {
                 // Send all posts to feedChannel
                 await feedChannel.send({ embeds: [responseText] });
             } else if (processAdultLinks == 2) {
                 // Send all posts to feedChannel and duplicate adult posts to adultFeedChannel
                 await feedChannel.send({ embeds: [responseText] });
-                if (workRating.includes('Mature') || workRating.includes('Explicit')) {
+                if (ao3.workRating.includes('Mature') || ao3.workRating.includes('Explicit')) {
                     await adultFeedChannel.send({ embeds: [responseText] });
-                    console.log(`***processAdultLinks: ${processAdultLinks}, rating: ${workRating}, adultFeedChannel: ${adultFeedChannel.name}`);
+                    console.log(`***processAdultLinks: ${processAdultLinks}, rating: ${ao3.workRating}, adultFeedChannel: ${adultFeedChannel.name}`);
                 }
             } else if (processAdultLinks == 3) {
                 //Filter adult works to adultFeedChannel and Send other ratings to feedChannel
-                if (workRating.includes('Mature') || workRating.includes('Explicit')) {
+                if (ao3.workRating.includes('Mature') || ao3.workRating.includes('Explicit')) {
                     await adultFeedChannel.send({ embeds: [responseText] });
                 } else {
                     await feedChannel.send({ embeds: [responseText] });

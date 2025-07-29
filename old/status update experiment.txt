@@ -1,0 +1,26 @@
+//status update experiment 
+/*
+client.on('presenceUpdate', (_, newPresence) => {
+    console.log(`${timestamp()}: ${newPresence.user.username}(${newPresence.user.displayName}\) is now ${newPresence.status}`);
+    let guildMembers = await GUILD.members.fetch({ withPresences: true });
+    let { guild: { members } } = interaction;
+    let allMembers = await members.fetch();
+    //let onlineUsers = allMembers.filter((member) => member.presence.status !== 'offline');
+    let onlineUsers = await guildMembers.filter(member => !member.user.bot && member.presence?.status != "offline").size
+    let usernames = onlineUsers.map((member) => member.displayName);
+    // array of usernames of users who are not offline
+    console.log(usernames);
+});
+
+async function usersOnline(newPresence) {
+    const guildMembers = await newPresence.member.guild.members.fetch({ withPresences: true });
+    const onlineUsers = guildMembers.filter(member => !member.user.bot && newPresence.status != "offline");
+    console.log(`Online users: ${onlineUsers.size}`);
+    const usernames = onlineUsers.map(member => member.displayName);
+    return usernames;
+}
+client.on('presenceUpdate', (_, newPresence) => {
+    console.log(`${timestamp()}: ${newPresence.user.username}(${newPresence.user.displayName}) is now ${newPresence.status}`);
+    usersOnline(newPresence).then(usernames => console.log(usernames));
+});
+*/

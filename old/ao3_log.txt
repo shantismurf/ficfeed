@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="keywords" content="fanfiction, transformative works, otw, fair use, archive" />
+    <meta name="language" content="en-US" />
+    <meta name="subject" content="fandom" />
+    <meta name="description" content="An Archive of Our Own, a project of the
+    Organization for Transformative Works" />
+    <meta name="distribution" content="GLOBAL" />
+    <meta name="classification" content="transformative works" />
+    <meta name="author" content="Organization for Transformative Works" />
+  	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>
+          Bagginshield Book Club
+        |
+        Archive of Our Own
+    </title>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/skins/skin_1_default/1_site_screen_.css" />
+<link rel="stylesheet" type="text/css" media="only screen and (max-width: 62em), handheld" href="/stylesheets/skins/skin_1_default/4_site_midsize.handheld_.css" />
+<link rel="stylesheet" type="text/css" media="only screen and (max-width: 42em), handheld" href="/stylesheets/skins/skin_1_default/5_site_narrow.handheld_.css" />
+<link rel="stylesheet" type="text/css" media="speech" href="/stylesheets/skins/skin_1_default/6_site_speech_.css" />
+<link rel="stylesheet" type="text/css" media="print" href="/stylesheets/skins/skin_1_default/7_site_print_.css" />
+<!--[if IE 8]><link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/skins/skin_1_default/8_site_screen_IE8_or_lower.css" /><![endif]-->
+<!--[if IE 5]><link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/skins/skin_1_default/9_site_screen_IE5.css" /><![endif]-->
+<!--[if IE 6]><link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/skins/skin_1_default/10_site_screen_IE6.css" /><![endif]-->
+<!--[if IE 7]><link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/skins/skin_1_default/11_site_screen_IE7.css" /><![endif]-->
+
+
+<!--sandbox for developers	-->
+<link rel="stylesheet" href="/stylesheets/sandbox.css" />
+
+
+
+<script src="/javascripts/livevalidation_standalone.js"></script>
+
+<meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="2lFcS4ZAJWRoqd-n6xHgAaYTsXmNANdkZRasIej-wRPwYLVIGZ33w1brbbgYOHYwGqUDJ8UkIT6ISsPhcQpyoQ" />
+
+    
+  </head>
+
+  <body class="logged-out" >
+    <div id="outer" class="wrapper">
+      <ul id="skiplinks"><li><a href="#main">Main Content</a></li></ul>
+      <noscript><p id="javascript-warning">While we&#39;ve done our best to make the core functionality of this site accessible without JavaScript, it will work better with it enabled. Please consider turning it on!</p></noscript>
+
+<!-- BEGIN header -->
+  <!-- custom css for header -->
+  <style type="text/css">
+  #header h2 { 
+    background: #616C90 
+      url(); height: 100%
+    ;
+  }
+  </style>
+
+<header id="header" class="region collection">
+
+  <h1 class="heading">
+    <a href="/"><span>Archive of Our Own</span><sup> beta</sup><img alt="Archive of Our Own" class="logo" src="/images/ao3_logos/logo_42.png" /></a>
+  </h1>
+
+    <div id="login" class="dropdown">
+      <p class="user actions">
+        <a id="login-dropdown" href="/users/login">Log In</a>
+      </p>
+      <div id="small_login" class="simple login">
+	<form class="new_user" id="new_user_session_small" action="/users/login" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="ta5yJoZvqq57301x9mDTLwBu3Pg-lhqdc48d9fnu5cNh5BDW8j7Ht-q7c_bROhS4HeyQ2MhkGgLw2vVINgC-Rg" autocomplete="off" />
+	<dl>
+    <dt>
+      <label for="user_session_login_small">User name or email:</label></dt>
+    <dd><input id="user_session_login_small" type="text" name="user[login]" /></dd>
+    <dt><label for="user_session_password_small">Password:</label></dt>
+    <dd><input id="user_session_password_small" type="password" name="user[password]" /></dd>
+  </dl>
+  <p class="submit actions">
+    <label for="user_remember_me_small" class="action"><input type="checkbox" name="user[remember_me]" id="user_remember_me_small" value="1" />Remember Me</label>
+    <input type="submit" name="commit" value="Log In" />
+  </p>
+</form>
+<ul class="footnote actions">
+  <li><a href="/users/password/new">Forgot password?</a></li>
+    <li>
+      <a href="/invite_requests">Get an Invitation</a>
+    </li>
+</ul>
+
+</div>
+
+    </div>
+
+  <nav aria-label="Site">
+    <ul class="primary navigation actions">
+      <li class="dropdown">
+        <a href="/menu/fandoms">Fandoms</a>
+        <ul class="menu">
+  <li><a href="/media">All Fandoms</a></li>
+        <li id="medium_5"><a href="/media/Anime%20*a*%20Manga/fandoms">Anime &amp; Manga</a></li>
+        <li id="medium_3"><a href="/media/Books%20*a*%20Literature/fandoms">Books &amp; Literature</a></li>
+        <li id="medium_4"><a href="/media/Cartoons%20*a*%20Comics%20*a*%20Graphic%20Novels/fandoms">Cartoons &amp; Comics &amp; Graphic Novels</a></li>
+        <li id="medium_7"><a href="/media/Celebrities%20*a*%20Real%20People/fandoms">Celebrities &amp; Real People</a></li>
+        <li id="medium_2"><a href="/media/Movies/fandoms">Movies</a></li>
+        <li id="medium_6"><a href="/media/Music%20*a*%20Bands/fandoms">Music &amp; Bands</a></li>
+        <li id="medium_8"><a href="/media/Other%20Media/fandoms">Other Media</a></li>
+        <li id="medium_30198"><a href="/media/Theater/fandoms">Theater</a></li>
+        <li id="medium_1"><a href="/media/TV%20Shows/fandoms">TV Shows</a></li>
+        <li id="medium_476"><a href="/media/Video%20Games/fandoms">Video Games</a></li>
+        <li id="medium_9971"><a href="/media/Uncategorized%20Fandoms/fandoms">Uncategorized Fandoms</a></li>
+</ul>
+
+      </li>
+      <li class="dropdown">
+        <a href="/menu/browse">Browse</a>
+        <ul class="menu">
+  <li><a href="/works">Works</a></li>
+  <li><a href="/bookmarks">Bookmarks</a></li>
+  <li><a href="/tags">Tags</a></li>
+  <li><a href="/collections">Collections</a></li>
+</ul>
+
+      </li>
+      <li class="dropdown">
+        <a href="/menu/search">Search</a>
+        <ul class="menu">
+  <li><a href="/works/search">Works</a></li>
+  <li><a href="/bookmarks/search">Bookmarks</a></li>
+  <li><a href="/tags/search">Tags</a></li>
+  <li><a href="/people/search">People</a></li>
+</ul>
+
+      </li>
+      <li class="dropdown">
+        <a href="/menu/about">About</a>
+        <ul class="menu">
+  <li><a href="/about">About Us</a></li>
+  <li><a href="/admin_posts">News</a></li>
+  <li><a href="/faq">FAQ</a></li>
+  <li><a href="/wrangling_guidelines">Wrangling Guidelines</a></li>
+  <li><a href="/donate">Donate or Volunteer</a></li>
+</ul>
+
+      </li>
+      <li class="search"><form class="search" id="search" role="search" aria-label="Work" action="/works/search" accept-charset="UTF-8" method="get">
+  <fieldset>
+    <p>
+      <label class="landmark" for="site_search">Work Search</label>
+      <input class="text" id="site_search" aria-describedby="site_search_tooltip" type="text" name="work_search[query]" />
+      <span class="tip" role="tooltip" id="site_search_tooltip">tip: &quot;uchiha sasuke/uzumaki naruto&quot; angst kudos&gt;10</span>
+      <span class="submit actions"><input type="submit" value="Search" class="button" /></span>
+    </p>
+  </fieldset>
+</form></li>
+    </ul>
+  </nav>
+
+
+    <h2 class="collections">
+        Bagginshield Book Club
+    </h2>
+
+  <div class="clear"></div>
+
+</header>
+
+    <div class=" announcement group" id="admin-banner">
+      <blockquote class="userstuff">
+        <p><strong>We are updating the AO3 Terms of Service</strong>, and the proposed changes are now <a href="/admin_posts/30349" rel="nofollow">open for feedback</a>. The Board of Directors will vote on the proposed changes on <strong>November 18, 2024. If the vote passes, you will have to agree to the new Terms to continue using AO3.</strong> Check out <a href="/admin_posts/30349" rel="nofollow">our news post</a> to provide your feedback prior to the vote.</p>
+      </blockquote>
+        <p class="submit">
+          <a class="showme action" title="hide banner" href="/collections/BagginshieldBookClub?hide_banner=true&amp;view_adult=true">&times;</a>
+        </p>
+    </div>
+
+
+<!-- END header -->
+
+      <div id="inner" class="wrapper">
+        <!-- BEGIN sidebar -->
+          <div id="dashboard" class="region" role="navigation region">
+  <h3 class="landmark heading">Dashboard</h3>
+  <ul class="navigation actions">
+    <li><span class="current">Dashboard</span></li>
+    <li><a href="/collections/BagginshieldBookClub/profile">Profile</a></li>
+  
+      <li><a href="/collections/BagginshieldBookClub/collections">Subcollections (0)</a></li>
+  </ul>
+
+  <!-- challenge section of dash -->
+
+  <h4 class="landmark heading">Contents</h4>
+  <ul class="navigation actions">
+    <li><a href="/collections/BagginshieldBookClub/fandoms">Fandoms (0)</a></li>
+
+    <li><a href="/collections/BagginshieldBookClub/works">Works (0)</a></li>
+
+    <li><a href="/collections/BagginshieldBookClub/bookmarks">Bookmarked Items (57)</a></li>
+
+    <li>
+      <a data-remote="true" href="/collections/BagginshieldBookClub?method=get&amp;url=%2Fcollections%2FBagginshieldBookClub%3Fshow_random%3Dtrue">Random Items</a>  
+    </li>
+    <li><a href="/collections/BagginshieldBookClub/people">People</a></li>
+    <li><a href="/collections/BagginshieldBookClub/tags">Tags</a></li>
+  </ul>  
+
+</div>
+
+
+        <!-- END sidebar -->
+
+        <!-- BEGIN main -->
+        <div id="main" class="collections-show dashboard region" role="main">
+          
+          <div class="flash"></div>
+          <div id="collection-page" class="collection home">
+
+  <!--Descriptive page name, messages and instructions-->
+<div class="primary header module">
+  <h2 class="heading">Bagginshield Book Club</h2>
+  <div class="icon">
+    <img alt="" src="https://s3.amazonaws.com/otw-ao3-icons/collections/icons/1202098/standard.jpg?1686441138" width="100" height="100" />
+  </div>
+<!--/descriptions-->
+
+<!--subnav-->
+  <ul class="navigation actions" role="navigation">
+    <li><a href="/collections/BagginshieldBookClub/profile">Profile</a></li>
+
+
+
+
+  </ul>
+  <!--/subnav-->
+  <blockquote class="userstuff"><p>This is where you will find all the stories that the Bagginshield Book Club on Discord will be reading.  These are assigned stories to be discussed and have a timeline.  If you would like to join in on the discussion, be sure to download the Discord app and check us out!</p></blockquote>
+  <p class="type">
+    (Open, Moderated)
+  </p>
+</div>
+
+
+  <!--main content-->
+
+    <div class="bookmark listbox group" id="collection-bookmarks">
+  <h3 class="heading">
+      Recent bookmarks
+  </h3>
+  <ul class="index group">
+      <li id="bookmark_1881832432" class="bookmark blurb group work-26722762 user-8186209 user-39370" role="article">
+
+    <!--bookmark icons-->
+    <p class="status" title="98 Bookmarks">
+       <a class="help symbol question modal" title="Bookmark symbols key" href="/help/bookmark-symbols-key.html"><span class="public" title="Public Bookmark"><span class="text">Public Bookmark</span></span></a>
+      <span class="count"><a href="/works/26722762/bookmarks">98</a></span>
+    </p>
+
+    <!--bookmark item module-->
+      
+
+  <!--title, author, fandom-->
+  <div class="header module">
+
+    <h4 class="heading">
+      <a href="/collections/BagginshieldBookClub/works/26722762">On Painted Wing</a>
+      by
+        
+      <!-- do not cache -->
+      <a rel="author" href="/users/Arkan_Sonney/pseuds/Arkan_Sonney">Arkan_Sonney</a>
+
+
+
+      
+      
+    </h4>
+
+    <h5 class="fandoms heading">
+      <span class="landmark">Fandoms:</span>
+      <a class="tag" href="/tags/The%20Hobbit%20-%20All%20Media%20Types/works">The Hobbit - All Media Types</a>
+      &nbsp;
+    </h5>
+
+    <!--required tags-->
+    <ul class="required-tags">
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="rating-teen rating" title="Teen And Up Audiences"><span class="text">Teen And Up Audiences</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="warning-choosenotto warnings" title="Choose Not To Use Archive Warnings"><span class="text">Choose Not To Use Archive Warnings</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="category-slash category" title="M/M"><span class="text">M/M</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="complete-yes iswip" title="Complete Work"><span class="text">Complete Work</span></span></a></li>
+</ul>
+    <p class="datetime">01 Oct 2020</p>
+  </div>
+
+  <!--warnings again, cast, freeform tags-->
+  <h6 class="landmark heading">Tags</h6>
+  <ul class="tags commas">
+    <li class='warnings'><strong><a class="tag" href="/tags/Choose%20Not%20To%20Use%20Archive%20Warnings/works">Creator Chose Not To Use Archive Warnings</a></strong></li><li class='relationships'><a class="tag" href="/tags/Bilbo%20Baggins*s*Thorin%20Oakenshield/works">Bilbo Baggins/Thorin Oakenshield</a></li><li class='characters'><a class="tag" href="/tags/Bilbo%20Baggins/works">Bilbo Baggins</a></li> <li class='characters'><a class="tag" href="/tags/Lotho%20Sackville-Baggins/works">Lotho Sackville-Baggins</a></li> <li class='characters'><a class="tag" href="/tags/Bifur%20(Tolkien)/works">Bifur (Tolkien)</a></li> <li class='characters'><a class="tag" href="/tags/Thorin%20Oakenshield/works">Thorin Oakenshield</a></li><li class='freeforms'><a class="tag" href="/tags/Alternate%20Universe%20-%20Fairy%20Tale/works">Alternate Universe - Fairy Tale</a></li> <li class='freeforms'><a class="tag" href="/tags/Tooth-Rotting%20Fluff/works">Tooth-Rotting Fluff</a></li> <li class='freeforms'><a class="tag" href="/tags/Thorin%20Oakenshield%20Is%20a%20Disaster/works">Thorin Oakenshield Is a Disaster</a></li> <li class='freeforms'><a class="tag" href="/tags/Thorin%20is%20a%20Softie/works">Thorin is a Softie</a></li> <li class='freeforms'><a class="tag" href="/tags/Friendship/works">Friendship</a></li> <li class='freeforms'><a class="tag" href="/tags/Romance/works">Romance</a></li> <li class='freeforms'><a class="tag" href="/tags/Family%20Feels/works">Family Feels</a></li> <li class='freeforms'><a class="tag" href="/tags/Adventure/works">Adventure</a></li> <li class='freeforms'><a class="tag" href="/tags/Drama/works">Drama</a></li>
+  </ul>
+
+  <!--summary-->
+    <h6 class="landmark heading">Summary</h6>
+    <blockquote class="userstuff summary">
+      <p>It’s only marriage, they tell him, it’s not the end of the world.</p><p>To save the Shire, Bilbo must venture to a faraway land and wed the Crown Prince of Erebor. He and his surly cousin Lotho—the very last hobbit you would expect—embark on a journey that will change the course of their lives forever. Along the way, they learn a thing or two about love, friendship, and the meaning of family.</p><p>Fairy Tale AU based on <i>The Goose Girl<i> by the Brothers Grimm</i></i></p>
+    </blockquote>
+
+
+  <!--stats-->
+
+  <dl class="stats">
+      <dt class="language">Language:</dt>
+      <dd class="language" lang="en">English</dd>
+    <dt class="words">Words:</dt>
+    <dd class="words">39,694</dd>
+    <dt class="chapters">Chapters:</dt>
+    <dd class="chapters"><a href="/works/26722762/chapters/65270734">3</a>/3</dd>
+
+
+    <dt class="collections">Collections:</dt>
+    <dd class="collections"><a href="/works/26722762/collections">2</a></dd>
+
+    <dt class="comments">Comments:</dt>
+    <dd class="comments"><a href="/works/26722762?show_comments=true&amp;view_full_work=true#comments">52</a></dd>
+
+    <dt class="kudos">Kudos:</dt>
+    <dd class="kudos"><a href="/works/26722762?view_full_work=true#kudos">350</a></dd>
+
+    <dt class="bookmarks">Bookmarks:</dt>
+    <dd class="bookmarks"><a href="/works/26722762/bookmarks">98</a></dd>
+
+  <dt class="hits">Hits:</dt>
+  <dd class="hits">4,104</dd>
+
+  </dl>
+
+
+
+
+    <!--actions-->
+      <ul class="actions" role="navigation">
+      </ul>
+
+    <div class="new dynamic" id="bookmark_form_placement_for_26722762"></div>
+
+  <div class="user module group">
+    <!--bookmarker, time-->
+    <h5 class="byline heading">
+      Bookmarked by <a href="/users/shantismurf/pseuds/shantismurf/bookmarks">shantismurf</a>
+    </h5>
+    <p class="datetime">10 Nov 2024</p>
+
+    <!--meta-->
+
+        <h6 class="meta heading">Bookmarker&#39;s Collections:</h6>
+        <ul class="meta commas">
+              <li><a href="/collections/BagginshieldBookClub">Bagginshield Book Club</a></li>
+        </ul>
+
+    <!--notes-->
+      <h6 class="landmark heading">Bookmarker&#39;s Notes</h6>
+      <blockquote class="userstuff notes">
+        <p>This adaptation takes the bare bones of the fairy tale and injects it with so much complex emotion and depth. Themes of transformation, finding your place in the world, and acceptance for others and for yourself despite and even because of your flaws were all expertly tied into the referenced poem, Wild Geese by Mary Oliver.  So much found family love and amazing character development!</p>
+      </blockquote>
+
+  <!--navigation and actions-->
+</div>
+
+
+
+</li>
+
+      <li id="bookmark_1866896824" class="bookmark blurb group work-1566425 user-235172 user-39370" role="article">
+
+    <!--bookmark icons-->
+    <p class="status" title="233 Bookmarks">
+       <a class="help symbol question modal" title="Bookmark symbols key" href="/help/bookmark-symbols-key.html"><span class="public" title="Public Bookmark"><span class="text">Public Bookmark</span></span></a>
+      <span class="count"><a href="/works/1566425/bookmarks">*</a></span>
+    </p>
+
+    <!--bookmark item module-->
+      
+
+  <!--title, author, fandom-->
+  <div class="header module">
+
+    <h4 class="heading">
+      <a href="/collections/BagginshieldBookClub/works/1566425">Hallowbit</a>
+      by
+        
+      <!-- do not cache -->
+      <a rel="author" href="/users/batherik/pseuds/batherik">batherik</a>
+
+
+
+      
+      
+    </h4>
+
+    <h5 class="fandoms heading">
+      <span class="landmark">Fandoms:</span>
+      <a class="tag" href="/tags/The%20Hobbit%20-%20All%20Media%20Types/works">The Hobbit - All Media Types</a>
+      &nbsp;
+    </h5>
+
+    <!--required tags-->
+    <ul class="required-tags">
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="rating-teen rating" title="Teen And Up Audiences"><span class="text">Teen And Up Audiences</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="warning-no warnings" title="No Archive Warnings Apply"><span class="text">No Archive Warnings Apply</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="category-multi category" title="M/M, F/M"><span class="text">M/M, F/M</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="complete-yes iswip" title="Complete Work"><span class="text">Complete Work</span></span></a></li>
+</ul>
+    <p class="datetime">18 Aug 2016</p>
+  </div>
+
+  <!--warnings again, cast, freeform tags-->
+  <h6 class="landmark heading">Tags</h6>
+  <ul class="tags commas">
+    <li class='warnings'><strong><a class="tag" href="/tags/No%20Archive%20Warnings%20Apply/works">No Archive Warnings Apply</a></strong></li><li class='relationships'><a class="tag" href="/tags/Bilbo%20Baggins*s*Thorin%20Oakenshield/works">Bilbo Baggins/Thorin Oakenshield</a></li> <li class='relationships'><a class="tag" href="/tags/K%C3%ADli*s*Tauriel/works">Kíli/Tauriel</a></li><li class='characters'><a class="tag" href="/tags/Bilbo%20Baggins/works">Bilbo Baggins</a></li> <li class='characters'><a class="tag" href="/tags/Thorin%20Oakenshield/works">Thorin Oakenshield</a></li> <li class='characters'><a class="tag" href="/tags/F%C3%ADli/works">Fíli</a></li> <li class='characters'><a class="tag" href="/tags/K%C3%ADli/works">Kíli</a></li> <li class='characters'><a class="tag" href="/tags/Bofur/works">Bofur</a></li> <li class='characters'><a class="tag" href="/tags/Thorin&#39;s%20Company/works">Thorin&#39;s Company</a></li> <li class='characters'><a class="tag" href="/tags/Gandalf/works">Gandalf</a></li> <li class='characters'><a class="tag" href="/tags/D%C3%ADs/works">Dís</a></li> <li class='characters'><a class="tag" href="/tags/Mirkwood%20Elves/works">Mirkwood Elves</a></li> <li class='characters'><a class="tag" href="/tags/Tauriel/works">Tauriel</a></li> <li class='characters'><a class="tag" href="/tags/Gimli/works">Gimli</a></li><li class='freeforms'><a class="tag" href="/tags/Decapitation/works">Decapitation</a></li> <li class='freeforms'><a class="tag" href="/tags/slight%20body%20horror/works">slight body horror</a></li> <li class='freeforms'><a class="tag" href="/tags/Everyone%20survives%20being%20dead/works">Everyone survives being dead</a></li> <li class='freeforms'><a class="tag" href="/tags/Halloween%20AU/works">Halloween AU</a></li> <li class='freeforms'><a class="tag" href="/tags/Slow%20Burn/works">Slow Burn</a></li> <li class='freeforms'><a class="tag" href="/tags/Alternate%20Universe%20-%20Modern%20Setting/works">Alternate Universe - Modern Setting</a></li> <li class='freeforms'><a class="tag" href="/tags/Comedy/works">Comedy</a></li> <li class='freeforms'><a class="tag" href="/tags/Romantic%20Comedy/works">Romantic Comedy</a></li>
+  </ul>
+
+  <!--summary-->
+    <h6 class="landmark heading">Summary</h6>
+    <blockquote class="userstuff summary">
+      <p>As simple pawn shop owner in the human world, Bilbo isn’t all that thrilled to find himself lost in Thorin’s magical undead kingdom. Lured there by an old man dressed in grey, who turned out to be a wizard, Bilbo is charged with doing a job no one wants to do: fetch the King’s head from the corn maze. The King often loses his head when his temper boils over.</p>
+    </blockquote>
+
+    <h6 class="landmark heading">Series</h6>
+    <ul class="series">
+        <li>
+          Part <strong>1</strong> of <a href="/series/532702">Halloween!Hobbit AU</a>
+        </li>
+    </ul>
+
+  <!--stats-->
+
+  <dl class="stats">
+      <dt class="language">Language:</dt>
+      <dd class="language" lang="en">English</dd>
+    <dt class="words">Words:</dt>
+    <dd class="words">74,005</dd>
+    <dt class="chapters">Chapters:</dt>
+    <dd class="chapters"><a href="/works/1566425/chapters/17801854">24</a>/24</dd>
+
+
+
+    <dt class="comments">Comments:</dt>
+    <dd class="comments"><a href="/works/1566425?show_comments=true&amp;view_full_work=true#comments">252</a></dd>
+
+    <dt class="kudos">Kudos:</dt>
+    <dd class="kudos"><a href="/works/1566425?view_full_work=true#kudos">887</a></dd>
+
+    <dt class="bookmarks">Bookmarks:</dt>
+    <dd class="bookmarks"><a href="/works/1566425/bookmarks">233</a></dd>
+
+  <dt class="hits">Hits:</dt>
+  <dd class="hits">20,997</dd>
+
+  </dl>
+
+
+
+
+    <!--actions-->
+      <ul class="actions" role="navigation">
+      </ul>
+
+    <div class="new dynamic" id="bookmark_form_placement_for_1566425"></div>
+
+  <div class="user module group">
+    <!--bookmarker, time-->
+    <h5 class="byline heading">
+      Bookmarked by <a href="/users/shantismurf/pseuds/shantismurf/bookmarks">shantismurf</a>
+    </h5>
+    <p class="datetime">27 Oct 2024</p>
+
+    <!--meta-->
+
+        <h6 class="meta heading">Bookmarker&#39;s Collections:</h6>
+        <ul class="meta commas">
+              <li><a href="/collections/BagginshieldBookClub">Bagginshield Book Club</a></li>
+        </ul>
+
+    <!--notes-->
+      <h6 class="landmark heading">Bookmarker&#39;s Notes</h6>
+      <blockquote class="userstuff notes">
+        <p>Through the Looking Glass meets Nightmare Before Christmas with a fluffy horror slice of life kind of charm. Wonderfully reflective and hilarious in turns, it has a sort of creepy/spooky vibe with so much love underneath - chock full of Company love and sweet bickering romance.</p>
+      </blockquote>
+
+  <!--navigation and actions-->
+</div>
+
+
+
+</li>
+
+      <li id="bookmark_1856404297" class="bookmark blurb group work-47492473 user-8679136 user-39370" role="article">
+
+    <!--bookmark icons-->
+    <p class="status" title="69 Bookmarks">
+       <a class="help symbol question modal" title="Bookmark symbols key" href="/help/bookmark-symbols-key.html"><span class="public" title="Public Bookmark"><span class="text">Public Bookmark</span></span></a>
+      <span class="count"><a href="/works/47492473/bookmarks">69</a></span>
+    </p>
+
+    <!--bookmark item module-->
+      
+
+  <!--title, author, fandom-->
+  <div class="header module">
+
+    <h4 class="heading">
+      <a href="/collections/BagginshieldBookClub/works/47492473">Strange Ghosts</a>
+      by
+        
+      <!-- do not cache -->
+      <a rel="author" href="/users/Ticklesivory/pseuds/Ticklesivory">Ticklesivory</a>
+
+
+
+      
+      
+    </h4>
+
+    <h5 class="fandoms heading">
+      <span class="landmark">Fandoms:</span>
+      <a class="tag" href="/tags/The%20Hobbit%20-%20All%20Media%20Types/works">The Hobbit - All Media Types</a>
+      &nbsp;
+    </h5>
+
+    <!--required tags-->
+    <ul class="required-tags">
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="rating-mature rating" title="Mature"><span class="text">Mature</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="warning-choosenotto warnings" title="Choose Not To Use Archive Warnings"><span class="text">Choose Not To Use Archive Warnings</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="category-slash category" title="M/M"><span class="text">M/M</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="complete-yes iswip" title="Complete Work"><span class="text">Complete Work</span></span></a></li>
+</ul>
+    <p class="datetime">08 Jun 2023</p>
+  </div>
+
+  <!--warnings again, cast, freeform tags-->
+  <h6 class="landmark heading">Tags</h6>
+  <ul class="tags commas">
+    <li class='warnings'><strong><a class="tag" href="/tags/Choose%20Not%20To%20Use%20Archive%20Warnings/works">Creator Chose Not To Use Archive Warnings</a></strong></li><li class='relationships'><a class="tag" href="/tags/Bilbo%20Baggins*s*Thorin%20Oakenshield/works">Bilbo Baggins/Thorin Oakenshield</a></li><li class='characters'><a class="tag" href="/tags/Bilbo%20Baggins/works">Bilbo Baggins</a></li> <li class='characters'><a class="tag" href="/tags/Thorin%20Oakenshield/works">Thorin Oakenshield</a></li> <li class='characters'><a class="tag" href="/tags/Thr%C3%A1in%20II/works">Thráin II</a></li> <li class='characters'><a class="tag" href="/tags/Frerin%20(Tolkien)/works">Frerin (Tolkien)</a></li> <li class='characters'><a class="tag" href="/tags/Dwarves%20of%20Erebor/works">Dwarves of Erebor</a></li> <li class='characters'><a class="tag" href="/tags/Thorin&#39;s%20Company/works">Thorin&#39;s Company</a></li> <li class='characters'><a class="tag" href="/tags/Thr%C3%B3r%20(Tolkien)/works">Thrór (Tolkien)</a></li> <li class='characters'><a class="tag" href="/tags/Fris%20(mother%20of%20Thorin)/works">Fris (mother of Thorin)</a></li><li class='freeforms'><a class="tag" href="/tags/Ghosts/works">Ghosts</a></li> <li class='freeforms'><a class="tag" href="/tags/Haunting/works">Haunting</a></li> <li class='freeforms'><a class="tag" href="/tags/Romance/works">Romance</a></li> <li class='freeforms'><a class="tag" href="/tags/Comedy/works">Comedy</a></li> <li class='freeforms'><a class="tag" href="/tags/Thorin%20Lives/works">Thorin Lives</a></li> <li class='freeforms'><a class="tag" href="/tags/F%C3%ADli%20and%20K%C3%ADli%20Live/works">Fíli and Kíli Live</a></li> <li class='freeforms'><a class="tag" href="/tags/bagginshield/works">bagginshield</a></li> <li class='freeforms'><a class="tag" href="/tags/Thilbo/works">Thilbo</a></li> <li class='freeforms'><a class="tag" href="/tags/ThorinxBilbo%20-%20Freeform/works">ThorinxBilbo - Freeform</a></li> <li class='freeforms'><a class="tag" href="/tags/thorin*s*bilbo/works">thorin/bilbo</a></li> <li class='freeforms'><a class="tag" href="/tags/bilbo*s*thorin%20-%20Freeform/works">bilbo/thorin - Freeform</a></li>
+  </ul>
+
+  <!--summary-->
+    <h6 class="landmark heading">Summary</h6>
+    <blockquote class="userstuff summary">
+      <p>Bilbo has remained in Erebor to try and help its rebuilding.  After suffering a slight head injury, he discovers something: Either Erebor is haunted or he is losing his mind.</p>
+    </blockquote>
+
+
+  <!--stats-->
+
+  <dl class="stats">
+      <dt class="language">Language:</dt>
+      <dd class="language" lang="en">English</dd>
+    <dt class="words">Words:</dt>
+    <dd class="words">18,504</dd>
+    <dt class="chapters">Chapters:</dt>
+    <dd class="chapters"><a href="/works/47492473/chapters/120329887">8</a>/8</dd>
+
+
+
+    <dt class="comments">Comments:</dt>
+    <dd class="comments"><a href="/works/47492473?show_comments=true&amp;view_full_work=true#comments">71</a></dd>
+
+    <dt class="kudos">Kudos:</dt>
+    <dd class="kudos"><a href="/works/47492473?view_full_work=true#kudos">428</a></dd>
+
+    <dt class="bookmarks">Bookmarks:</dt>
+    <dd class="bookmarks"><a href="/works/47492473/bookmarks">69</a></dd>
+
+  <dt class="hits">Hits:</dt>
+  <dd class="hits">4,537</dd>
+
+  </dl>
+
+
+
+
+    <!--actions-->
+      <ul class="actions" role="navigation">
+      </ul>
+
+    <div class="new dynamic" id="bookmark_form_placement_for_47492473"></div>
+
+  <div class="user module group">
+    <!--bookmarker, time-->
+    <h5 class="byline heading">
+      Bookmarked by <a href="/users/shantismurf/pseuds/shantismurf/bookmarks">shantismurf</a>
+    </h5>
+    <p class="datetime">16 Oct 2024</p>
+
+    <!--meta-->
+
+        <h6 class="meta heading">Bookmarker&#39;s Collections:</h6>
+        <ul class="meta commas">
+              <li><a href="/collections/BagginshieldBookClub">Bagginshield Book Club</a></li>
+        </ul>
+
+    <!--notes-->
+
+  <!--navigation and actions-->
+</div>
+
+
+
+</li>
+
+      <li id="bookmark_1827456964" class="bookmark blurb group work-55237240 user-14866095 user-39370" role="article">
+
+    <!--bookmark icons-->
+    <p class="status" title="26 Bookmarks">
+       <a class="help symbol question modal" title="Bookmark symbols key" href="/help/bookmark-symbols-key.html"><span class="public" title="Public Bookmark"><span class="text">Public Bookmark</span></span></a>
+      <span class="count"><a href="/works/55237240/bookmarks">26</a></span>
+    </p>
+
+    <!--bookmark item module-->
+      
+
+  <!--title, author, fandom-->
+  <div class="header module">
+
+    <h4 class="heading">
+      <a href="/collections/BagginshieldBookClub/works/55237240">Everything I need is in this Armchair</a>
+      by
+        
+      <!-- do not cache -->
+      <a rel="author" href="/users/Lucigoo89/pseuds/Lucigoo89">Lucigoo89</a>
+
+
+
+      
+      
+    </h4>
+
+    <h5 class="fandoms heading">
+      <span class="landmark">Fandoms:</span>
+      <a class="tag" href="/tags/The%20Hobbit%20-%20All%20Media%20Types/works">The Hobbit - All Media Types</a>
+      &nbsp;
+    </h5>
+
+    <!--required tags-->
+    <ul class="required-tags">
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="rating-teen rating" title="Teen And Up Audiences"><span class="text">Teen And Up Audiences</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="warning-no warnings" title="No Archive Warnings Apply"><span class="text">No Archive Warnings Apply</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="category-slash category" title="M/M"><span class="text">M/M</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="complete-yes iswip" title="Complete Work"><span class="text">Complete Work</span></span></a></li>
+</ul>
+    <p class="datetime">25 Apr 2024</p>
+  </div>
+
+  <!--warnings again, cast, freeform tags-->
+  <h6 class="landmark heading">Tags</h6>
+  <ul class="tags commas">
+    <li class='warnings'><strong><a class="tag" href="/tags/No%20Archive%20Warnings%20Apply/works">No Archive Warnings Apply</a></strong></li><li class='relationships'><a class="tag" href="/tags/Bilbo%20Baggins*s*Thorin%20Oakenshield/works">Bilbo Baggins/Thorin Oakenshield</a></li> <li class='relationships'><a class="tag" href="/tags/F%C3%ADli%20*a*%20K%C3%ADli%20*a*%20Thorin%20Oakenshield/works">Fíli &amp; Kíli &amp; Thorin Oakenshield</a></li><li class='characters'><a class="tag" href="/tags/Bilbo%20Baggins/works">Bilbo Baggins</a></li> <li class='characters'><a class="tag" href="/tags/Thorin%20Oakenshield/works">Thorin Oakenshield</a></li> <li class='characters'><a class="tag" href="/tags/K%C3%ADli/works">Kíli</a></li> <li class='characters'><a class="tag" href="/tags/F%C3%ADli/works">Fíli</a></li> <li class='characters'><a class="tag" href="/tags/Dwalin/works">Dwalin</a></li> <li class='characters'><a class="tag" href="/tags/Nori/works">Nori</a></li> <li class='characters'><a class="tag" href="/tags/D%C3%ADs/works">Dís</a></li><li class='freeforms'><a class="tag" href="/tags/Dwarfnapping/works">Dwarfnapping</a></li> <li class='freeforms'><a class="tag" href="/tags/Presumed%20Death/works">Presumed Death</a></li> <li class='freeforms'><a class="tag" href="/tags/sad%20thorin/works">sad thorin</a></li> <li class='freeforms'><a class="tag" href="/tags/Searching%20for%20his%20boys/works">Searching for his boys</a></li> <li class='freeforms'><a class="tag" href="/tags/Mention%20of%20slaver/works">Mention of slaver</a></li> <li class='freeforms'><a class="tag" href="/tags/Of%20dwarflings%20being%20sold%20to%20feed%20orcs/works">Of dwarflings being sold to feed orcs</a></li> <li class='freeforms'><a class="tag" href="/tags/Alternate%20Universe%20-%20Different%20First%20Meeting/works">Alternate Universe - Different First Meeting</a></li> <li class='freeforms'><a class="tag" href="/tags/Pre-Quest%20of%20Erebor/works">Pre-Quest of Erebor</a></li> <li class='freeforms'><a class="tag" href="/tags/different%20timeline/works">different timeline</a></li>
+  </ul>
+
+  <!--summary-->
+    <h6 class="landmark heading">Summary</h6>
+    <blockquote class="userstuff summary">
+      <p>Fili and Kili are the highlight of Thorin's life. Everyhting he does is so they and the other Ereborians can have a better life.</p><p>His whole life is shaken when they are stolen by slaver.</p><p>Part of the Thorin Spring Forge collection, with stunning art from Alse_the_hobbit. I am honoured that they drew such an amazing picture for this fic, thank you Alse &lt;3</p><p>Prompt #8 - I will find them (title changed lol)</p>
+    </blockquote>
+
+
+  <!--stats-->
+
+  <dl class="stats">
+      <dt class="language">Language:</dt>
+      <dd class="language" lang="en">English</dd>
+    <dt class="words">Words:</dt>
+    <dd class="words">15,206</dd>
+    <dt class="chapters">Chapters:</dt>
+    <dd class="chapters"><a href="/works/55237240/chapters/140117827">7</a>/7</dd>
+
+
+    <dt class="collections">Collections:</dt>
+    <dd class="collections"><a href="/works/55237240/collections">1</a></dd>
+
+    <dt class="comments">Comments:</dt>
+    <dd class="comments"><a href="/works/55237240?show_comments=true&amp;view_full_work=true#comments">30</a></dd>
+
+    <dt class="kudos">Kudos:</dt>
+    <dd class="kudos"><a href="/works/55237240?view_full_work=true#kudos">178</a></dd>
+
+    <dt class="bookmarks">Bookmarks:</dt>
+    <dd class="bookmarks"><a href="/works/55237240/bookmarks">26</a></dd>
+
+  <dt class="hits">Hits:</dt>
+  <dd class="hits">1,732</dd>
+
+  </dl>
+
+
+
+
+    <!--actions-->
+      <ul class="actions" role="navigation">
+      </ul>
+
+    <div class="new dynamic" id="bookmark_form_placement_for_55237240"></div>
+
+  <div class="user module group">
+    <!--bookmarker, time-->
+    <h5 class="byline heading">
+      Bookmarked by <a href="/users/shantismurf/pseuds/shantismurf/bookmarks">shantismurf</a>
+    </h5>
+    <p class="datetime">17 Sep 2024</p>
+
+    <!--meta-->
+
+        <h6 class="meta heading">Bookmarker&#39;s Collections:</h6>
+        <ul class="meta commas">
+              <li><a href="/collections/BagginshieldBookClub">Bagginshield Book Club</a></li>
+        </ul>
+
+    <!--notes-->
+
+  <!--navigation and actions-->
+</div>
+
+
+
+</li>
+
+      <li id="bookmark_1827456454" class="bookmark blurb group work-52884139 user-14866095 user-39370" role="article">
+
+    <!--bookmark icons-->
+    <p class="status" title="156 Bookmarks">
+       <a class="help symbol question modal" title="Bookmark symbols key" href="/help/bookmark-symbols-key.html"><span class="public" title="Public Bookmark"><span class="text">Public Bookmark</span></span></a>
+      <span class="count"><a href="/works/52884139/bookmarks">*</a></span>
+    </p>
+
+    <!--bookmark item module-->
+      
+
+  <!--title, author, fandom-->
+  <div class="header module">
+
+    <h4 class="heading">
+      <a href="/collections/BagginshieldBookClub/works/52884139">Defying Death (or at least the ones in charge)</a>
+      by
+        
+      <!-- do not cache -->
+      <a rel="author" href="/users/Lucigoo89/pseuds/Lucigoo89">Lucigoo89</a>
+
+
+
+      
+      
+    </h4>
+
+    <h5 class="fandoms heading">
+      <span class="landmark">Fandoms:</span>
+      <a class="tag" href="/tags/The%20Hobbit%20-%20All%20Media%20Types/works">The Hobbit - All Media Types</a>
+      &nbsp;
+    </h5>
+
+    <!--required tags-->
+    <ul class="required-tags">
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="rating-teen rating" title="Teen And Up Audiences"><span class="text">Teen And Up Audiences</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="warning-yes warnings" title="Major Character Death"><span class="text">Major Character Death</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="category-slash category" title="M/M"><span class="text">M/M</span></span></a></li>
+<li> <a class="help symbol question modal" title="Symbols key" href="/help/symbols-key.html"><span class="complete-yes iswip" title="Complete Work"><span class="text">Complete Work</span></span></a></li>
+</ul>
+    <p class="datetime">07 Jan 2024</p>
+  </div>
+
+  <!--warnings again, cast, freeform tags-->
+  <h6 class="landmark heading">Tags</h6>
+  <ul class="tags commas">
+    <li class='warnings'><strong><a class="tag" href="/tags/Major%20Character%20Death/works">Major Character Death</a></strong></li><li class='relationships'><a class="tag" href="/tags/Bilbo%20Baggins*s*Thorin%20Oakenshield/works">Bilbo Baggins/Thorin Oakenshield</a></li> <li class='relationships'><a class="tag" href="/tags/Bilbo%20*a*%20a%20whole%20heap%20of%20dwarves/works">Bilbo &amp; a whole heap of dwarves</a></li><li class='characters'><a class="tag" href="/tags/Bilbo%20Baggins/works">Bilbo Baggins</a></li> <li class='characters'><a class="tag" href="/tags/Thorin%20Oakenshield/works">Thorin Oakenshield</a></li> <li class='characters'><a class="tag" href="/tags/K%C3%ADli%20(Tolkien)/works">Kíli (Tolkien)</a></li> <li class='characters'><a class="tag" href="/tags/F%C3%ADli%20(Tolkien)/works">Fíli (Tolkien)</a></li> <li class='characters'><a class="tag" href="/tags/Thorin&#39;s%20Company/works">Thorin&#39;s Company</a></li> <li class='characters'><a class="tag" href="/tags/D%C3%ADs%20(Tolkien)/works">Dís (Tolkien)</a></li> <li class='characters'><a class="tag" href="/tags/Frerin%20(Tolkien)/works">Frerin (Tolkien)</a></li> <li class='characters'><a class="tag" href="/tags/D%C3%A1in%20Ironfoot/works">Dáin Ironfoot</a></li> <li class='characters'><a class="tag" href="/tags/Thr%C3%A1in%20II/works">Thráin II</a></li> <li class='characters'><a class="tag" href="/tags/Thr%C3%B3r%20(Tolkien)/works">Thrór (Tolkien)</a></li> <li class='characters'><a class="tag" href="/tags/Yavanna%20Kement%C3%A1ri/works">Yavanna Kementári</a></li> <li class='characters'><a class="tag" href="/tags/Aul%C3%AB%20%7C%20Mahal/works">Aulë | Mahal</a></li> <li class='characters'><a class="tag" href="/tags/Nienna%20(Tolkien)/works">Nienna (Tolkien)</a></li> <li class='characters'><a class="tag" href="/tags/Irmo%20%7C%20L%C3%B3rien/works">Irmo | Lórien</a></li> <li class='characters'><a class="tag" href="/tags/Vair%C3%AB%20the%20Weaver/works">Vairë the Weaver</a></li> <li class='characters'><a class="tag" href="/tags/N%C3%A1mo%20%7C%20Mandos/works">Námo | Mandos</a></li><li class='freeforms'><a class="tag" href="/tags/Technically%20MCD%20because%20Bilbo%20dies/works">Technically MCD because Bilbo dies</a></li> <li class='freeforms'><a class="tag" href="/tags/BUt%20he%20goes%20to%20the%20Halls%20of%20Mahal%20so%20its%20fine/works">BUt he goes to the Halls of Mahal so its fine</a></li> <li class='freeforms'><a class="tag" href="/tags/Afterlife%20fic/works">Afterlife fic</a></li> <li class='freeforms'><a class="tag" href="/tags/Sassy%20Bilbo%20Baggins/works">Sassy Bilbo Baggins</a></li> <li class='freeforms'><a class="tag" href="/tags/BAMF%20Bilbo%20Baggins/works">BAMF Bilbo Baggins</a></li> <li class='freeforms'><a class="tag" href="/tags/Pining%20Thorin%20Oakenshield/works">Pining Thorin Oakenshield</a></li> <li class='freeforms'><a class="tag" href="/tags/Afterlife%20Reunions/works">Afterlife Reunions</a></li> <li class='freeforms'><a class="tag" href="/tags/Greif%20stricken%20Bilbo/works">Greif stricken Bilbo</a></li> <li class='freeforms'><a class="tag" href="/tags/But%20he%20has%20just%20died%20so%20its%20understandable/works">But he has just died so its understandable</a></li> <li class='freeforms'><a class="tag" href="/tags/HEA/works">HEA</a></li> <li class='freeforms'><a class="tag" href="/tags/apart%20from%20the%20fact%20they%20are%20all%20dead/works">apart from the fact they are all dead</a></li>
+  </ul>
+
+  <!--summary-->
+    <h6 class="landmark heading">Summary</h6>
+    <blockquote class="userstuff summary">
+      <p>Bilbo has finally died, and now Lord Mandos wants to shove him away to Lady Yavanna's Green Gardens. Well that wont do. After all, Thorin wont be in Yavanna's gardens and Bilbo wont stay where Thorin isnt.</p><p>He's a burglar, and if he can smuggle his dwarves out from under Thranduil's nose, he can smuggle himself into Mahal's Halls under the Valar's noses, right?</p>
+    </blockquote>
+
+
+  <!--stats-->
+
+  <dl class="stats">
+      <dt class="language">Language:</dt>
+      <dd class="language" lang="en">English</dd>
+    <dt class="words">Words:</dt>
+    <dd class="words">15,362</dd>
+    <dt class="chapters">Chapters:</dt>
+    <dd class="chapters"><a href="/works/52884139/chapters/133770001">4</a>/4</dd>
+
+
+
+    <dt class="comments">Comments:</dt>
+    <dd class="comments"><a href="/works/52884139?show_comments=true&amp;view_full_work=true#comments">77</a></dd>
+
+    <dt class="kudos">Kudos:</dt>
+    <dd class="kudos"><a href="/works/52884139?view_full_work=true#kudos">664</a></dd>
+
+    <dt class="bookmarks">Bookmarks:</dt>
+    <dd class="bookmarks"><a href="/works/52884139/bookmarks">156</a></dd>
+
+  <dt class="hits">Hits:</dt>
+  <dd class="hits">5,006</dd>
+
+  </dl>
+
+
+
+
+    <!--actions-->
+      <ul class="actions" role="navigation">
+      </ul>
+
+    <div class="new dynamic" id="bookmark_form_placement_for_52884139"></div>
+
+  <div class="user module group">
+    <!--bookmarker, time-->
+    <h5 class="byline heading">
+      Bookmarked by <a href="/users/shantismurf/pseuds/shantismurf/bookmarks">shantismurf</a>
+    </h5>
+    <p class="datetime">17 Sep 2024</p>
+
+    <!--meta-->
+
+        <h6 class="meta heading">Bookmarker&#39;s Collections:</h6>
+        <ul class="meta commas">
+              <li><a href="/collections/BagginshieldBookClub">Bagginshield Book Club</a></li>
+        </ul>
+
+    <!--notes-->
+
+  <!--navigation and actions-->
+</div>
+
+
+
+</li>
+
+  </ul>
+    <ul class="actions" role="navigation"><li><a href="/collections/BagginshieldBookClub/bookmarks">Bookmarks (66)</a></li></ul>
+</div>
+
+
+  <!--/content-->
+  
+</div> 
+
+          <div class="clear"><!--presentational--></div>
+        </div>
+        <!-- END main -->
+      </div>
+      <!-- BEGIN footer -->
+<div id="footer" role="contentinfo" class="region">
+  <h3 class="landmark heading">Footer</h3>
+  <ul class="navigation actions" role="navigation">
+    <li class="module group">
+      <h4 class="heading">About the Archive</h4>
+      <ul class="menu">
+        <li><a href="/site_map">Site Map</a></li>
+        <li><a href="/diversity">Diversity Statement</a></li>
+        <li><a href="/tos">Terms of Service</a></li>
+        <li><a href="/dmca">DMCA Policy</a> </li>
+      </ul>
+    </li>
+    <li class="module group">
+      <h4 class="heading">Contact Us</h4>
+      <ul class="menu">
+        <li><a href="/abuse_reports/new">Policy Questions &amp; Abuse Reports</a></li>
+        <li><a href="/support">Technical Support &amp; Feedback</a></li>
+      </ul>
+    </li>
+    <li class="module group">
+      <h4 class="heading">Development</h4>
+      <ul class="menu">
+          <li><a href="https://github.com/otwcode/otwarchive/commits/v0.9.380.3">otwarchive v0.9.380.3</a></li>
+        <li><a href="/known_issues">Known Issues</a></li>
+        <li><a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" title="View License">GPL-2.0-or-later</a> by the <a href="https://transformativeworks.org/" title="The Organization for Transformative Works">OTW</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+<!-- END footer -->
+
+    </div>
+    <!-- check to see if this controller/action allow tinymce before we load the gigantor js; see application_helper -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" type="text/javascript"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js" type="text/javascript"></script>
+<!-- if user has googleapis blocked for some reason we need a fallback -->
+<script type="text/javascript">
+  if (typeof jQuery == 'undefined') {
+    document.write(unescape("%3Cscript src='/javascripts/jquery.min.js' type='text/javascript'%3E%3C/script%3E"));
+    document.write(unescape("%3Cscript src='/javascripts/jquery-ui.min.js' type='text/javascript'%3E%3C/script%3E"));
+  }
+</script>
+
+
+<script type="text/javascript">$j = jQuery.noConflict();</script>
+<script src="/javascripts/jquery.scrollTo.min.js"></script>
+<script src="/javascripts/jquery.livequery.min.js"></script>
+<script src="/javascripts/rails.js"></script>
+<script src="/javascripts/application.js"></script>
+<script src="/javascripts/bootstrap/bootstrap-dropdown.min.js"></script>
+<script src="/javascripts/jquery-shuffle.js"></script>
+<script src="/javascripts/jquery.tokeninput.min.js"></script>
+<script src="/javascripts/jquery.trap.min.js"></script>
+<script src="/javascripts/ao3modal.min.js"></script>
+<script src="/javascripts/js.cookie.min.js"></script>
+
+<script src="/javascripts/filters.min.js"></script>
+
+
+  <script>
+//<![CDATA[
+
+      // We can't rely on !window.localStorage to test localStorage support in
+      // browsers like Safari 9, which technically support it, but which have a
+      // storage length of 0 in private mode.
+      // Credit: https://github.com/getgrav/grav-plugin-admin/commit/cfe2188f10c4ca604e03c96f3e21537fda1cdf9a
+      function isSupported() {
+          var item = "localStoragePolyfill";
+          try {
+              localStorage.setItem(item, item);
+              localStorage.removeItem(item);
+              return true;
+          } catch (e) {
+              return false;
+          }
+      }
+
+      function acceptTOS() {
+        if (isSupported()) {
+          localStorage.setItem("accepted_tos", "20180523");
+        } else {
+          Cookies.set("accepted_tos", "20180523", { expires: 365 });
+        }
+      }
+
+    $j(document).ready(function() {
+        if (localStorage.getItem("accepted_tos") !== "20180523" && Cookies.get("accepted_tos") !== "20180523") {
+          $j("body").prepend("<div id=\"tos_prompt\" class=\"hidden\">\n  <h2 class=\"heading\">\n    <span>Archive of Our Own<\/span>\n  <\/h2>\n  <div class=\"agreement\">\n    <p class=\"summary\">\n      On Archive of Our Own (AO3), users can make profiles, create works and\n            other Content, post comments, give Kudos, create Collections and \n            Bookmarks, participate in Challenges, import works, and more. Any \n            information you publish in a comment, profile, work, or Content that you \n            post or import onto AO3 including in summaries, notes and tags, \n            will be accessible by the public (unless you limit access to a work only \n            to those with AO3 Accounts), and it will be available to \n            AO3 personnel. Be mindful when sharing personal information, \n            including  your religious or political views, health, racial background, \n            country of origin, sexual identity and/or personal relationships. To \n            learn more, check out our <a href=\"/tos\">Terms of Service<\/a> and <a href=\"/tos#privacy\">Privacy Policy<\/a>.\n    <\/p>\n\n    <p class=\"confirmation\">\n      <input type=\"checkbox\" id=\"tos_agree\" />\n      <label for=\"tos_agree\">I have read &amp; understood the new Terms of Service and Privacy Policy<\/label>\n    <\/p>\n\n      <p class=\"submit\">\n        <button name=\"button\" type=\"button\" disabled=\"disabled\" id=\"accept_tos\">I agree/consent to its terms<\/button>\n      <\/p>\n\n  <\/div>\n<\/div>\n\n<script>\n//<![CDATA[\n\n  \$j(document).ready(function() {\n    var container = \$j(\"#tos_prompt\");\n    var outer = \$j(\"#outer\");\n    var button = \$j(\"#accept_tos\");\n\n    setTimeout(showTOSPrompt, 1500);\n\n    function showTOSPrompt() {\n      \$j.when(container.fadeIn(500)).done(function() {\n        outer.addClass(\"hidden\").attr(\"aria-hidden\", \"true\");\n      });\n\n      \$j(\"#tos_agree\").on(\"click\", function() {\n        button.attr(\"disabled\", !this.checked);\n        if (this.checked) {\n          button.on(\"click\", function() {\n            acceptTOS();\n            outer.removeClass(\"hidden\").removeAttr(\"aria-hidden\");\n            \$j.when(container.fadeOut(500)).done(function() {\n              container.remove();\n            });\n          });\n        };\n      }).change();\n    };\n  });\n\n//]]]]><![CDATA[>\n<\/script>");
+        }
+    });
+
+//]]>
+</script>
+  <script>
+//<![CDATA[
+
+    $j(document).ready(function() {
+      var permitted_hosts = ["104.153.64.122","208.85.241.152","208.85.241.157","ao3.org","archiveofourown.com","archiveofourown.gay","archiveofourown.net","archiveofourown.org","download.archiveofourown.org","insecure.archiveofourown.org","secure.archiveofourown.org","www.archiveofourown.com","www.archiveofourown.net","www.archiveofourown.org","www.ao3.org","archive.transformativeworks.org"];
+      var current_host = window.location.hostname;
+
+      if (!permitted_hosts.includes(current_host) && Cookies.get("proxy_notice") !== "0" && window.location.protocol !== "file:") {
+        $j("#skiplinks").after("<div id=\"proxy-notice\">\n  <div class=\"userstuff\">\n    <p class=\"important\">Important message:<\/p>\n    <ol>\n      <li>You are using a proxy site that is not part of the Archive of Our Own.<\/li>\n      <li>The entity that set up the proxy site can see what you submit, including your IP address. If you log in through the proxy site, it can see your password.<\/li>\n    <\/ol>\n    <p class=\"important\">重要提示：<\/p>\n    <ol>\n      <li>您使用的是第三方开发的反向代理网站，此网站并非Archive of Our Own - AO3（AO3作品库）原站。<\/li>\n      <li>代理网站的开发者能够获取您上传至该站点的全部内容，包括您的ip地址。如您通过代理登录AO3，对方将获得您的密码。<\/li>\n    <\/ol>\n    <p class=\"submit\"><button class=\"action\" type=\"button\" id=\"proxy-notice-dismiss\">Dismiss Notice<\/button><\/p>\n  <\/div>\n<\/div>\n\n<script>\n//<![CDATA[\n\n  \$j(document).ready(function() {\n    \$j(\"#proxy-notice-dismiss\").on(\"click\", function() {\n      Cookies.set(\"proxy_notice\", \"0\");\n      \$j(\"#proxy-notice\").slideUp();\n    });\n  });\n\n//]]]]><![CDATA[>\n<\/script>");
+      }
+    });
+
+//]]>
+</script>
+
+
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'8e22302d9b12eac4',t:'MTczMTUzNjgzNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

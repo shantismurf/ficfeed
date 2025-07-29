@@ -1,0 +1,19 @@
+const dailyLOLCount = {};
+async function nololShanti(message) {
+    const now = formattedDate();
+    const today = now.slice(0, 10);
+    if (message.content.endsWith('lol')){
+        await message.react('❕'); 
+        dailyLOLCount[today] = (dailyLOLCount[today] || 0) + 1; //increment daily lol count
+        console.log(`(${now} - lol at https://discord.com/channels/${GUILD}/${message.channel.id}/${message.id}, ${dailyLOLCount[today]} times today)`);
+    } 
+}
+// async function batsignal(){
+//   const feedChannel = client.channels.cache.get(FEEDID);
+//   await feedChannel.send(`https://i.imgur.com/Wcg7amv.jpeg\n-# image by [@notgilderoylockhart](https://www.tumblr.com/notgilderoylockhart/776922836507951104/)`);
+// }
+// "subscribing to a fic isn’t enough I need the author to blast a bat signal into the night sky whenever they update"
+// register a list of members ao3 names linked to discord ids, 
+// if updated date is today, do a lookup on the list, check if they are still a member? update list when user leaves?
+// where to store? json? sql?
+//  if member is in list, send batsignal()
