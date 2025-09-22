@@ -57,8 +57,14 @@ export async function fetchDataWithHeaders(url, channelID, message) {
             retryCount++;
             if (maxRetries > 10) { retryCount = maxRetries; } // Prevents infinite loop
             if (retryCount === maxRetries) {
+                let errorMsg = `Max retries exceeded while processing ${msgText} (${errorMessage}). `;
+                if (/418/.test(String(error))) { 
+                errorMsg += `The Archive is temporarily limiting bot traffic. Try again later.`
+            } else {
+                errorMsg += `Archive is unavailable.`
+                }
                 console.error(`*!*!*!Max retries exceeded at ${formattedDate()}:\n${errorMessage}`);
-                await retryMessage.edit(`Archive is unavailable. Max retries exceeded while processing ${msgText}\n${errorMessage}`);
+                await retryMessage.edit(errorMsg);
                 throw error; // Rethrow the error so it can be caught by the caller
             }
         }
@@ -101,36 +107,13 @@ export default async function ao3api(link, message) {
                 metadata.workComments = $('dd.comments').text();
                 metadata.workKudos = $('dd.kudos').text();
                 metadata.workHits = $('dd.hits').text();
-                const seriesList = [];
-                $('dd.series span.series').each((_, span) => {
-                    const positionText = $(span).find('span.position').text().trim();
-                    const partNumber = (positionText.match(/Part\s*(\d+)\s*of/i) || [null, null])[1];
-                    const seriesTitle = $(span).find('span.position a').text().trim();
-                    const seriesUrl = $(span).find('span.position a').attr('href')
-                        ? `https://archiveofourown.org${$(span).find('span.position a').attr('href')}`
-                        : null;
-                    if (seriesUrl && seriesTitle) {
-                        seriesList.push({
-                            title: seriesTitle,
-                            url: seriesUrl,
-                            part: partNumber
-                        });
-                    }
-                });
-                metadata.workSeries = seriesList;
-                const collectionList = [];
-                $('dd.collections a').each((_, a) => {
-                    const collectionTitle = $(a).text().trim();
-                    const collectionUrl = $(a).attr('href');
-                    if (collectionTitle && collectionUrl) {
-                        collectionList.push({
-                            title: collectionTitle,
-                            url: `https://archiveofourown.org${collectionUrl}`
-                        });
-                    }
-                });
-                metadata.workCollections = collectionList; 
-                metadata.workSummary = $('blockquote.userstuff.summary').html(); 
+                const seriesText = $('ul.series li').text();
+                if (seriesText) {
+                    const linkText = seriesText.substring(seriesText.indexOf('of') + 3);
+                    const linkUrl = $('ul.series li a').attr('href');
+                    metadata.workSeries = seriesText.replace(/of (.*)/, `of [${linkText}](https://archiveofourown.org${linkUrl})`);
+                }
+                metadata.workSummary = $('blockquote.userstuff.summary').html();
             } else { //no adult content warning
                 metadata.workTitle = $('h2.title.heading').text().trim();
                 const authors = $('h3.byline.heading a').map((_, a) => $(a).text()).get();
@@ -194,19 +177,20 @@ export default async function ao3api(link, message) {
             // build list of works, sliced to only show 5 instead of 20 works
             let tag = $('ul.series.work.index.group');
             let seriesWorkList = '';
-            tag.find('li').slice(0, 65).each((index, li) => {
+            tag.find('li[role="article"]').each((index, li) => {
                 const h4 = $(li).find('h4.heading');
-                const links = Array.from(h4.find('a'));
-                const itemTitle = $(links[0]).text();
+                const links = h4.find('a');
+                const itemTitle = $(links[0]).text().trim();
                 const itemAuthor = links.length > 1 ? 'multiple authors' : $(links[1]).text();
                 if (itemTitle.length > 0) {
                     const itemRating = $(li).find('span.rating');
-                    seriesWorkList = seriesWorkList.concat('- [' +
+                    seriesWorkList += '- [' +
                         itemTitle + '](https://archiveofourown.org/' +
                         $(links[0]).attr('href') + ') by ' +
                         itemAuthor + ' (' +
-                        itemRating.attr('title').substring(0, 1) + ')\n');
+                        itemRating.attr('title').substring(0, 1) + ')\n';
                 }
+                if (test) console.log(`***seriesWorkList ${index}: ${seriesWorkList}`);
             });
             metadata.seriesWorkList = seriesWorkList;
 
