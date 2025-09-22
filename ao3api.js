@@ -159,7 +159,7 @@ export default async function ao3api(link, message) {
             };
         } else if (link.includes("series")) {
             metadata.type = 'series';
-            metadata.seriesTitle = $('h2.heading').text().trim();
+            metadata.seriesTitle = $('h2.heading').text();
             // if title is not found send the restricted message to the server
             if (metadata.seriesTitle == '') {
                 console.log(`*!*!*!${metadata.type} title not found at ${formattedDate()}`);
@@ -169,7 +169,7 @@ export default async function ao3api(link, message) {
             metadata.seriesCreator = $('.series.meta.group dt:contains("Creator")').next().text();
             metadata.seriesBegun = $('.series.meta.group dt:contains("Series Begun:")').next().text();
             metadata.seriesUpdated = $('.series.meta.group dt:contains("Series Updated:")').next().text();
-            metadata.seriesDescription = $('.series.meta.group dt:contains("Description:")').next().html().trim();
+            metadata.seriesDescription = $('.series.meta.group dt:contains("Description:")').next().html();
             metadata.seriesWords = $('.series.meta.group dt:contains("Words:")').next().text();
             metadata.seriesWorks = $('.series.meta.group dt:contains("Works:")').next().text();
             metadata.seriesBookmarks = !$('.series.meta.group dt:contains("Bookmarks:")').next().text() ? '0' : $('.series.meta.group dt:contains("Bookmarks:")').next().text();
