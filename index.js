@@ -135,6 +135,7 @@ async function buildEmbed(linkURL, message) {
         const worktaglength = stats.worktaglength; 
         const seriesdesclength = stats.seriesdesclength;
         const worktitlelength = stats.worktitlelength;
+        const silentFlag = stats.silent;
         const linkType = (!ao3.type ? 'link' : ao3.type);
         if (ao3.setError) {
             console.log(`*!*!*!Restricted work or error at ${formattedDate()}`);
@@ -354,30 +355,36 @@ async function buildEmbed(linkURL, message) {
         console.log(`***responseText: ${JSON.stringify(responseText)}`);
         console.log(`***Link type: ${linkType}: ${linkURL} processed at ${formattedDate()}.`);
 
+        // create base message, preserve its options, 
+        // then add the silent flag if it is set
+        const baseMsg = { embeds: [responseText] };
+        const msgForFeed = { ...baseMsg };
+        if (silentFlag) msgForFeed.silent = true;
+
         //send the message, divert or duplicate to the adultFeedChannel
         if (linkType === 'work') {
             const workRating = ao3.workRating ?? '';
             if (processAdultLinks == 1) {
                 // Send all posts to feedChannel
-                await feedChannel.send({ embeds: [responseText] });
+                await feedChannel.send(msgForFeed);
             } else if (processAdultLinks == 2) {
                 // Send all posts to feedChannel and duplicate adult posts to adultFeedChannel
-                await feedChannel.send({ embeds: [responseText] });
+                await feedChannel.send(msgForFeed);
                 if (workRating.includes('Mature') || workRating.includes('Explicit')) {
-                    await adultFeedChannel.send({ embeds: [responseText] });
+                    await adultFeedChannel.send(msgForFeed);
                     console.log(`***processAdultLinks: ${processAdultLinks}, rating: ${workRating}, adultFeedChannel: ${adultFeedChannel.name}`);
                 }
             } else if (processAdultLinks == 3) {
                 //Filter adult works to adultFeedChannel and Send other ratings to feedChannel
                 if (workRating.includes('Mature') || workRating.includes('Explicit')) {
-                    await adultFeedChannel.send({ embeds: [responseText] });
+                    await adultFeedChannel.send(msgForFeed);
                 } else {
-                    await feedChannel.send({ embeds: [responseText] });
+                    await feedChannel.send(msgForFeed);
                 }
             }
         } else {
             // Send series and collections directly to the feedChannel
-            await feedChannel.send({ embeds: [responseText] });
+            await feedChannel.send(msgForFeed);
         }
     } catch (error) {
         console.log(`*!*!*!Error sending message at ${formattedDate()}: ${error}`);

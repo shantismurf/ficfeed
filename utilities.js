@@ -78,6 +78,7 @@ export function userStats() {
     userStats.worktaglength = 400; //max 1024
     userStats.seriesdesclength = 400;
     userStats.worktitlelength = 256; //max 256
+    userStats.silent = true; //suppress notifications on ficfeed posts
 
     return userStats;
 }
