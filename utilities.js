@@ -2,18 +2,18 @@ export function testEnvironment() {
     return true; 
     //return false;
 }
-import mysql from 'mysql2/promise';
+//import mysql from 'mysql2/promise';
 import config from './config.json' with { type: 'json' };
 const DBHOST = config.DBHOST;
 const DBUSER = config.DBUSER;
 const DBPASSWORD = config.DBPASSWORD;
 const DBDATABASE = config.DBDATABASE;
-export const db = await mysql.createConnection({
+/* export const db = await mysql.createConnection({
     host: DBHOST,
     user: DBUSER,
     password: DBPASSWORD,
     database: DBDATABASE
-});
+}); */
 export function formattedDate() {
     let now = new Date();
     now = now.toISOString().replace(/\.\d+Z$/, '')
