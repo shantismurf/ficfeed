@@ -357,8 +357,7 @@ async function buildEmbed(linkURL, message) {
 
         // create base message, preserve its options, 
         // then add the silent flag if it is set
-        const baseMsg = { embeds: [responseText] };
-        const msgForFeed = { ...baseMsg };
+        const msgForFeed = { embeds: [responseText] };
         if (silentFlag) msgForFeed.silent = true;
 
         //send the message, divert or duplicate to the adultFeedChannel
