@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import axios from 'axios';
+// import axios from 'axios';
 import { DiscordClient, formattedDate, testEnvironment } from './utilities.js';
 const client = DiscordClient.getInstance();
 import config from './config.json' with {type: 'json'};
@@ -28,8 +28,9 @@ export async function fetchDataWithHeaders(url, channelID, message) {
     let delay = 1000; // delay in milliseconds
     while (retryCount < maxRetries) {
         try {
-            const response = await axios.get(url, { headers });
-            const $ = cheerio.load(response.data);
+            // const response = await axios.get(url, { headers });
+            const response = await fetch(url, { headers }).then(res => res.text());
+            const $ = cheerio.load(response);
             // Delete the retry message after a successful fetch
             if (retryMessage) {
                 await retryMessage.delete();
