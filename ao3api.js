@@ -218,24 +218,29 @@ export default async function ao3api(link, message) {
                 metadata.setError = `${metadata.type} not available`;
                 return metadata;
             };
-            let tag = $('div#dashboard');
-            tag = tag.find('ul.navigation.actions').first();
-            tag.find('li').each((index, li) => {
-                const a = $(li).find('a');
-                const links = Array.from(a);
-                const variablename = 'collectionStats' + index;
-                metadata[variablename] = $(links[0]).text();
+            
+            // Dynamic collection statistics parsing - inline logic
+            $('ul.navigation.actions a, div.navigation a').each((i, link) => {
+                const text = $(link).text().trim();
+                const match = text.match(/([^(]+)\s*\((\d+)\)/);
+                
+                if (match && parseInt(match[2]) > 0) {
+                    // Convert "Bookmarked Items" to "BookmarkedItems" 
+                    const statName = match[1].trim()
+                        .split(/\s+/)
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join('');
+                    
+                    const fieldName = `${metadata.type}${statName}`;
+                    metadata[fieldName] = { 
+                        label: fieldName, 
+                        display: text 
+                    };
+                }
             });
-            metadata.collectionSubcollections = metadata.collectionStats2;
-            if (test) console.log(`03 - ${JSON.stringify(metadata)}`);
-            tag = tag.nextAll('ul.navigation.actions').first();
-            tag.find('li').each((index, li) => {
-                const a = $(li).find('a');
-                const links = Array.from(a);
-                const variablename = 'collectionStats' + index;
-                metadata[variablename] = $(links[0]).text();
-            });
-            const listCount = $('ul.index.group').find('li')
+            
+            // Build collection work list
+            const listCount = $('ul.index.group').find('li');
             let collectionWorkList = '';
             if (listCount.length == 0) {
                 collectionWorkList = 'No items found in collection';
@@ -243,44 +248,26 @@ export default async function ao3api(link, message) {
                 $('ul.index.group').find('li').each((index, li) => {
                     const h4 = $(li).find('h4.heading');
                     const links = Array.from(h4.find('a'));
-                    const itemTitle = $(links[0]).text();
-                    const itemAuthor = links.length > 1 ? $(links[1]).text() : '-';
+                    const itemTitle = $(links[0])?.text() || '';
+                    const itemAuthor = links.length > 1 ? $(links[1])?.text() || '-' : '-';
                     if (itemTitle.length > 0) {
                         const itemRating = $(li).find('span.rating');
                         const ratingType = itemRating.attr('title') || '-';
-                        collectionWorkList = collectionWorkList.concat('- [' + 
-                             itemTitle + '](https://archiveofourown.org/' + 
-                             $(links[0]).attr('href') + ') by ' + 
-                             itemAuthor + ' (' + ratingType.substring(0, 1) + ')\n');
+                        collectionWorkList += `- [${itemTitle}](https://archiveofourown.org${$(links[0]).attr('href')}) by ${itemAuthor} (${ratingType.substring(0, 1)})\n`;
                     }
                 });
             }
             metadata.collectionWorkList = collectionWorkList;
-            // Search the navigation links for the counts
-            let prompts = '', works = '', fandoms = '', bookmarks = '';
-            $('ul.navigation.actions a').each((i, link) => {
-                const linkText = $(link).text();
-                if (linkText.includes('Prompts')) prompts = linkText;
-                if (linkText.includes('Works')) works = linkText;  
-                if (linkText.includes('Fandoms')) fandoms = linkText;
-                if (linkText.includes('Bookmarked Items')) bookmarks = linkText;
-            });
-            metadata.collectionWorks = works || '';           // "Works (345)"
-            metadata.collectionFandoms = fandoms || '';       // "Fandoms (181)" 
-            metadata.collectionBookmarkedItems = bookmarks || '';  // "Bookmarked Items (0)"
-            metadata.collectionPrompts = prompts || '';       // "Prompts (246)"
-            if (test) console.log(`04 - Works: ${metadata.collectionWorks}`);
-            if (test) console.log(`05 - Fandoms: ${metadata.collectionFandoms}`);
-            if (test) console.log(`06 - Bookmarked Items: ${metadata.collectionBookmarkedItems}`);
-            if (test) console.log(`06 - Prompts: ${metadata.collectionPrompts}`);
-            metadata.collectionListboxHeading = !$('div.listbox.group h3.heading')?.text()?.trim() ? '\t' : $('div.listbox.group h3.heading').text().trim();
-            if (test) console.log(`08 - ${JSON.stringify(metadata)}`);
+            
+            // Parse other collection metadata
+            metadata.collectionListboxHeading = $('div.listbox.group h3.heading')?.text()?.trim() || '\t';
             metadata.collectionType = $('p.type').text().match(/\((.*)\)/)?.[1] || '-';
-            if (test) console.log(`09 - ${JSON.stringify(metadata)}`);
             metadata.collectionImage = $('div.icon').find('img').attr('src');
-            if (test) console.log(`10 - ${JSON.stringify(metadata)}`);
             metadata.collectionDescription = $('div.primary.header.module').find('blockquote.userstuff').html()?.trim();
-            if (test) console.log(`11 - ${JSON.stringify(metadata)}`);
+            
+            if (test) {
+                console.log(`Dynamic collection stats found:`, Object.keys(metadata).filter(key => key.startsWith('collection') && typeof metadata[key] === 'object'));
+            }
         }
         metadata.exists = true;
         //console.log(`***metadata: ${JSON.stringify(metadata)}`);

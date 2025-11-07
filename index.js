@@ -356,13 +356,18 @@ async function buildEmbed(linkURL, message) {
                         value: '-# *Restricted works are not included in counts*'
                     });
                 if (test) console.log(`02 - ${JSON.stringify(responseText)}`);
-                let worksList = (ao3.collectionWorks || '') + 
-                                (ao3.collectionBookmarkedItems ? ', ' + ao3.collectionBookmarkedItems : '') +
-                    			(ao3.collectionFandoms  ? ', ' + ao3.collectionFandoms : '') +
-                                (ao3.collectionPrompts ? ', ' + ao3.collectionPrompts : '');
+                
+                // Dynamically build collection statistics from any found stats
+                const collectionStatsList = [];
+                Object.entries(ao3).forEach(([key, value]) => {
+                    if (key.startsWith('collection') && value && typeof value === 'object' && value.display) {
+                        collectionStatsList.push(value.display);
+                    }
+                });
+                
                 responseText.addFields({
                     name: 'Collection Stats:',
-                    value: worksList || 'No stats available',
+                    value: collectionStatsList.length > 0 ? collectionStatsList.join(', ') : 'None',
                 });
                 if (test) console.log(`03 - ${JSON.stringify(responseText)}`);
                /* responseText.addFields(
