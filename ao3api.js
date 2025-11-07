@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-// import axios from 'axios';
+import axios from 'axios';
 import { DiscordClient, formattedDate, testEnvironment } from './utilities.js';
 const client = DiscordClient.getInstance();
 import config from './config.json' with {type: 'json'};
@@ -10,6 +10,15 @@ const GUILD = config.GUILD;
 export async function fetchDataWithHeaders(url, channelID, message) {
     const feedChannel = client.channels.cache.get(channelID);
     let msgID, msgAuthor, msgChannel, msgText;
+    // Clean up collections and series URLs - remove everything after the name
+    if (url.includes("/collections/") || url.includes("/series/")) {
+        const parts = url.split('/');
+        const typeIndex = parts.findIndex(part => part === 'collections' || part === 'series');
+        if (typeIndex !== -1 && parts[typeIndex + 1]) {
+            // Keep only up to: /collections/name or /series/name
+            url = parts.slice(0, typeIndex + 2).join('/');
+        }
+    }
     if (message) { 
         msgID = message.id;
         msgAuthor = message.author.displayName;
@@ -28,9 +37,8 @@ export async function fetchDataWithHeaders(url, channelID, message) {
     let delay = 1000; // delay in milliseconds
     while (retryCount < maxRetries) {
         try {
-            // const response = await axios.get(url, { headers });
-            const response = await fetch(url, { headers }).then(res => res.text());
-            const $ = cheerio.load(response);
+            const response = await axios.get(url, { headers });
+            const $ = cheerio.load(response.data);
             // Delete the retry message after a successful fetch
             if (retryMessage) {
                 await retryMessage.delete();
@@ -178,26 +186,32 @@ export default async function ao3api(link, message) {
             // build list of works, sliced to only show 5 instead of 20 works
             let tag = $('ul.series.work.index.group');
             let seriesWorkList = '';
-            tag.find('li[role="article"]').each((index, li) => {
+            //tag.find('li[role="article"]').each((index, li) => { 
+            tag.find('li[role="article"]:not([class*="mystery"])').each((index, li) => {
                 const h4 = $(li).find('h4.heading');
                 const links = h4.find('a');
                 const itemTitle = $(links[0]).text().trim();
-                const itemAuthor = links.length > 1 ? 'multiple authors' : $(links[1]).text();
+                const itemAuthor = links.length > 2 ? 'multiple authors' : $(links[1]).text();
+                //const itemAuthor = $(links[1]).text();
                 if (itemTitle.length > 0) {
                     const itemRating = $(li).find('span.rating');
+                    const ratingType = itemRating.attr('title') || '-';
                     seriesWorkList += '- [' +
                         itemTitle + '](https://archiveofourown.org/' +
                         $(links[0]).attr('href') + ') by ' +
                         itemAuthor + ' (' +
-                        itemRating.attr('title').substring(0, 1) + ')\n';
+                        ratingType.substring(0, 1) + ')\n'; 
                 }
                 if (test) console.log(`***seriesWorkList ${index}: ${seriesWorkList}`);
             });
             metadata.seriesWorkList = seriesWorkList;
 
         } else if (link.includes("collections")) {
+            if (test) console.log(`ao3api link.includes collections`);
             metadata.type = 'collection';
+            if (test) console.log(`01 - ${JSON.stringify(metadata)}`);
             metadata.collectionTitle = $('h2.heading').text().trim();
+            if (test) console.log(`02 - ${JSON.stringify(metadata)}`);
             // if title is not found send the restricted message to the server
             if (metadata.collectionTitle == '') {
                 console.log(`*!*!*!${metadata.type} title not found at ${formattedDate()}`);
@@ -213,6 +227,7 @@ export default async function ao3api(link, message) {
                 metadata[variablename] = $(links[0]).text();
             });
             metadata.collectionSubcollections = metadata.collectionStats2;
+            if (test) console.log(`03 - ${JSON.stringify(metadata)}`);
             tag = tag.nextAll('ul.navigation.actions').first();
             tag.find('li').each((index, li) => {
                 const a = $(li).find('a');
@@ -229,27 +244,43 @@ export default async function ao3api(link, message) {
                     const h4 = $(li).find('h4.heading');
                     const links = Array.from(h4.find('a'));
                     const itemTitle = $(links[0]).text();
-                    const itemAuthor = $(links[1]).text();
+                    const itemAuthor = links.length > 1 ? $(links[1]).text() : '-';
                     if (itemTitle.length > 0) {
                         const itemRating = $(li).find('span.rating');
-                        collectionWorkList = collectionWorkList.concat('- [' + itemTitle + '](https://archiveofourown.org/' + $(links[0]).attr('href') + ') by ' + itemAuthor + ' (' + itemRating.attr('title').substring(0, 1) + ')\n');
+                        const ratingType = itemRating.attr('title') || '-';
+                        collectionWorkList = collectionWorkList.concat('- [' + 
+                             itemTitle + '](https://archiveofourown.org/' + 
+                             $(links[0]).attr('href') + ') by ' + 
+                             itemAuthor + ' (' + ratingType.substring(0, 1) + ')\n');
                     }
                 });
             }
             metadata.collectionWorkList = collectionWorkList;
-            metadata.collectionFandoms = metadata.collectionStats0;
-            metadata.collectionWorks = metadata.collectionStats1;
-            metadata.collectionBookmarkedItems = metadata.collectionStats2;
-            delete metadata.collectionStats0;
-            delete metadata.collectionStats1;
-            delete metadata.collectionStats2;
-            delete metadata.collectionStats3;
-            delete metadata.collectionStats4;
-            delete metadata.collectionStats5;
+            // Search the navigation links for the counts
+            let prompts = '', works = '', fandoms = '', bookmarks = '';
+            $('ul.navigation.actions a').each((i, link) => {
+                const linkText = $(link).text();
+                if (linkText.includes('Prompts')) prompts = linkText;
+                if (linkText.includes('Works')) works = linkText;  
+                if (linkText.includes('Fandoms')) fandoms = linkText;
+                if (linkText.includes('Bookmarked Items')) bookmarks = linkText;
+            });
+            metadata.collectionWorks = works || '';           // "Works (345)"
+            metadata.collectionFandoms = fandoms || '';       // "Fandoms (181)" 
+            metadata.collectionBookmarkedItems = bookmarks || '';  // "Bookmarked Items (0)"
+            metadata.collectionPrompts = prompts || '';       // "Prompts (246)"
+            if (test) console.log(`04 - Works: ${metadata.collectionWorks}`);
+            if (test) console.log(`05 - Fandoms: ${metadata.collectionFandoms}`);
+            if (test) console.log(`06 - Bookmarked Items: ${metadata.collectionBookmarkedItems}`);
+            if (test) console.log(`06 - Prompts: ${metadata.collectionPrompts}`);
             metadata.collectionListboxHeading = !$('div.listbox.group h3.heading')?.text()?.trim() ? '\t' : $('div.listbox.group h3.heading').text().trim();
-            metadata.collectionType = $('p.type').text().match(/\((.*)\)/)[1];
+            if (test) console.log(`08 - ${JSON.stringify(metadata)}`);
+            metadata.collectionType = $('p.type').text().match(/\((.*)\)/)?.[1] || '-';
+            if (test) console.log(`09 - ${JSON.stringify(metadata)}`);
             metadata.collectionImage = $('div.icon').find('img').attr('src');
-            metadata.collectionDescription = $('div.primary.header.module').find('blockquote.userstuff').html().trim();
+            if (test) console.log(`10 - ${JSON.stringify(metadata)}`);
+            metadata.collectionDescription = $('div.primary.header.module').find('blockquote.userstuff').html()?.trim();
+            if (test) console.log(`11 - ${JSON.stringify(metadata)}`);
         }
         metadata.exists = true;
         //console.log(`***metadata: ${JSON.stringify(metadata)}`);

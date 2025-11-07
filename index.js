@@ -140,11 +140,12 @@ async function buildEmbed(linkURL, message) {
         if (ao3.setError) {
             console.log(`*!*!*!Restricted work or error at ${formattedDate()}`);
             //link is restricted or unavailable 
+            const errorCode = ao3.error ? (/code\s.*/.exec(ao3.error)?.[0] ?? ao3.setError) : 'Error unavailable';
             responseText = new EmbedBuilder()
                 .setColor(0x808080)
                 //.setTitle(`Preview not available. The ${linkType} may be restricted or unavailable. Click here to view.
                 //    \n(${ao3.error?.match(/code\s.*/)?.[0] ?? 'Restricted'})`)
-                .setTitle(`Preview not available. The ${linkType} may be restricted or the Archive is unavailable. Click here to view.\n(${/code\s.*/.exec(ao3.error) ?? ao3.setError})\n`)
+                .setTitle(`Preview not available. The ${linkType} may be restricted or the Archive is unavailable. Click here to view.\n(${errorCode})\n`)
                 .setURL(linkURL)
                 .setDescription(`Link posted by <@${msgAuthor}> in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`)
         } else {
@@ -272,11 +273,14 @@ async function buildEmbed(linkURL, message) {
                     });
                     if (test) console.log(`10-footer: ${tagstr}`);
             } else if (linkType == 'series') {
+                if (test) console.log(`index linkType series`);
                 //set limits on description string length and append elipsis if truncated
                 let descriptionstr = (ao3.seriesDescription ?? 'None').substring(0, seriesdesclength);
                 descriptionstr = descriptionstr.length == seriesdesclength ? descriptionstr + ' ...' : descriptionstr;
+                if (test) console.log(`01 - ${descriptionstr}`);
                 let authorstr = (ao3.seriesCreator ?? 'None').substring(0, workauthorlength);
                 authorstr = authorstr.length == workauthorlength ? authorstr + ' ...' : authorstr;
+                if (test) console.log(`02 - ${authorstr}`);
                 responseText = new EmbedBuilder()
                     .setColor(0xD7A9F1)
                     .setTitle(ao3.seriesTitle)
@@ -289,12 +293,14 @@ async function buildEmbed(linkURL, message) {
                     ` Link posted by <@${msgAuthor}> in ` +
                     `https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`
                 );
+                if (test) console.log(`02 - ${JSON.stringify(responseText)}`);
                 //build url without psuedonyms
                 const authorUrl = authorstr.includes(',') ? null : 'http://archiveofourown.org/users/' + authorstr.replace(/\(.*$/, "");
                 responseText.setAuthor({
                     name: 'A series by ' + ao3.seriesCreator,
                     ...(authorUrl && { url: authorUrl }) //only add link to single author
                 });
+                if (test) console.log(`03 - ${JSON.stringify(responseText)}`);
                 responseText.addFields(
                     {
                         name: 'Date Begun | Date Updated',
@@ -309,15 +315,30 @@ async function buildEmbed(linkURL, message) {
                         value: `${ao3.seriesWords} words in ${ao3.seriesWorks}` + (ao3.seriesWorks > 1 ? ' works' : ' work')
                     }
                 );
-                responseText.addFields(
-                    {
-                        name: 'Works:',
-                        value: ao3.seriesWorkList,
-                    });
+                if (test) console.log(`04 - ${JSON.stringify(responseText)}`);
+                let worksList = ao3.seriesWorkList;
+                if (worksList.length > 1024) {
+                    // Split by lines and rebuild until char limit
+                    const entries = worksList.split('\n');
+                    let truncated = '';
+                    for (const entry of entries) {
+                        if ((truncated + entry + '\n').length > 1020) { // Leave room for "..."
+                            break;
+                        }
+                        truncated += entry + '\n';
+                    }
+                    worksList = truncated + '...';
+                }
+                responseText.addFields({
+                    name: 'Works:',
+                    value: worksList,
+                });
+                if (test) console.log(`05 - ${JSON.stringify(responseText)}`);
                 responseText.setFooter({
                     text: 'Complete: ' + ao3.seriesComplete + ' | Bookmarks: ' + (ao3.seriesBookmarks ?? 0)
                 })
             } else if (linkType == 'collection') {
+                if (test) console.log(`index linkType collection`); 
                 responseText = new EmbedBuilder();
                 responseText.setColor(0xFF6600);
                 responseText.setTitle(ao3.collectionTitle);
@@ -328,28 +349,39 @@ async function buildEmbed(linkURL, message) {
                         name: 'Description:',
                         value: (ao3.collectionDescription ? sanitize(ao3.collectionDescription) : '\t')
                     });
+                if (test) console.log(`01 - ${JSON.stringify(responseText)}`); 
                 responseText.addFields(
                     {
                         name: '--------------------',
-                        value: '-# Restricted works are not included in counts:'
+                        value: '-# *Restricted works are not included in counts*'
                     });
-                responseText.addFields(
+                if (test) console.log(`02 - ${JSON.stringify(responseText)}`);
+                let worksList = (ao3.collectionWorks || '') + 
+                                (ao3.collectionBookmarkedItems ? ', ' + ao3.collectionBookmarkedItems : '') +
+                    			(ao3.collectionFandoms  ? ', ' + ao3.collectionFandoms : '') +
+                                (ao3.collectionPrompts ? ', ' + ao3.collectionPrompts : '');
+                responseText.addFields({
+                    name: 'Collection Stats:',
+                    value: worksList || 'No stats available',
+                });
+                if (test) console.log(`03 - ${JSON.stringify(responseText)}`);
+               /* responseText.addFields(
                     {
                         name: '\t',
-                        value: ao3.collectionWorks + ', ' + ao3.collectionBookmarkedItems
-                    });
+                        value: (ao3.collectionSubcollections || '') + ', ' + (ao3.collectionFandoms || '')
+                    }); */
                 responseText.addFields(
                     {
-                        name: '\t',
-                        value: ao3.collectionSubcollections + ', ' + ao3.collectionFandoms
+                        name: ao3.collectionListboxHeading || 'Items',
+                        value: ao3.collectionWorkList || 'No items found'
                     });
-                responseText.addFields(
-                    {
-                        name: ao3.collectionListboxHeading,
-                        value: ao3.collectionWorkList
-                    });
-                responseText.setThumbnail(ao3.collectionImage);
+                if (test) console.log(`04 - ${JSON.stringify(responseText)}`);
+                responseText.setThumbnail(ao3.collectionImage?.startsWith('/') 
+                    ? `https://archiveofourown.org${ao3.collectionImage}` 
+                    : ao3.collectionImage);
+                if (test) console.log(`05 - ${JSON.stringify(responseText)}`);
                 responseText.setFooter({ text: `Status: (${ao3.collectionType})` });
+                if (test) console.log(`06 - ${JSON.stringify(responseText)}`);
             }
         }
         console.log(`***responseText: ${JSON.stringify(responseText)}`);
