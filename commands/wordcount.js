@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { fetchDataWithHeaders } from '../ao3api.js';
+import { fetchDataWithHeaders } from '../ficfeed.js';
 import { formattedDate } from '../utilities.js';
 
 export default {

@@ -1,8 +1,14 @@
 import {SlashCommandBuilder} from 'discord.js';
-import ao3api from '../ao3api.js';
+import ao3api from '../ficfeed.js';
 import {sanitize, userStats, formattedDate} from '../utilities.js';
 
-export default {
+/* TEMPORARILY DISABLED FOR DEVELOPMENT
+ * This command is under development and not ready for production use.
+ * To re-enable: uncomment the export default block below and remove this comment.
+ */
+
+// export default {
+const libraryCommand = {
 	data: new SlashCommandBuilder()
 		.setName('library')
 		.setDescription('Submits a link to the library')
