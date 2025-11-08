@@ -1,6 +1,13 @@
-import { untrackAo3Link } from '../tracker.js';
+import { SlashCommandBuilder } from 'discord.js';
+import { untrackAo3Link } from '../../tracker.js';
 
-export default {
+/* TEMPORARILY DISABLED FOR DEVELOPMENT
+ * Tracker commands are under development and will be consolidated using subcommands.
+ * To re-enable: uncomment the export default block below and remove this comment.
+ */
+
+// export default {
+const removeCommand = {
     data: new SlashCommandBuilder()
         .setName('remove')
         .setDescription('Remove a tracked AO3 work')

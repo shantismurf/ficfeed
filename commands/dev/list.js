@@ -1,6 +1,13 @@
-import { listAo3Links } from '../tracker.js';
+import { SlashCommandBuilder } from 'discord.js';
+import { listAo3Links } from '../../tracker.js';
 
-export default {
+/* TEMPORARILY DISABLED FOR DEVELOPMENT
+ * Tracker commands are under development and will be consolidated using subcommands.
+ * To re-enable: uncomment the export default block below and remove this comment.
+ */
+
+// export default {
+const listCommand = {
     data: new SlashCommandBuilder()
         .setName('list')
         .setDescription('List your tracked AO3 works')

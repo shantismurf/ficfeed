@@ -1,6 +1,13 @@
-import { updateAo3Link } from '../tracker.js';
+import { SlashCommandBuilder } from 'discord.js';
+import { updateAo3Link } from '../../tracker.js';
 
-export default {
+/* TEMPORARILY DISABLED FOR DEVELOPMENT
+ * Tracker commands are under development and will be consolidated using subcommands.
+ * To re-enable: uncomment the export default block below and remove this comment.
+ */
+
+// export default {
+const updateCommand = {
     data: new SlashCommandBuilder()
         .setName('update')
         .setDescription('Update a tracked AO3 work')

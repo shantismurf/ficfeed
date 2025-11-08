@@ -1,6 +1,6 @@
 import {SlashCommandBuilder} from 'discord.js';
-import ao3api from '../ficfeed.js';
-import {sanitize, userStats, formattedDate} from '../utilities.js';
+import ao3api from '../../ficfeed.js';
+import {sanitize, userStats, formattedDate} from '../../utilities.js';
 
 /* TEMPORARILY DISABLED FOR DEVELOPMENT
  * This command is under development and not ready for production use.

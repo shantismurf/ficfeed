@@ -1,6 +1,12 @@
-import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
+import { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
 
-export default {
+/* TEMPORARILY DISABLED FOR DEVELOPMENT
+ * Tracker commands are under development and will be consolidated using subcommands.
+ * To re-enable: uncomment the export default block below and remove this comment.
+ */
+
+// export default {
+const trackCommand = {
     data: new SlashCommandBuilder()
         .setName('track')
         .setDescription('Track an AO3 work using a form'),
