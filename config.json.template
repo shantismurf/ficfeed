@@ -1,0 +1,9 @@
+{
+  "TOKEN": "your_production_bot_token_here",
+  "TESTTOKEN": "your_test_bot_token_here",
+  "FEEDID": "your_production_channel_id_here", 
+  "TESTFEEDID": "your_test_channel_id_here",
+  "ADULTFEEDID": "your_production_adult_channel_id_here",
+  "TESTADULTFEEDID": "your_test_adult_channel_id_here",
+  "GUILD": "your_guild_id_here"
+}

@@ -9,7 +9,7 @@ const FEEDID = test ? config.TESTFEEDID : config.FEEDID;
 const ADULTFEEDID = test ? config.TESTADULTFEEDID : config.ADULTFEEDID;
 const GUILD = config.GUILD;
 
-async function fetchDataWithHeaders(url, channelID, message) {
+export async function fetchDataWithHeaders(url, channelID, message) {
     const feedChannel = client.channels.cache.get(channelID);
     let msgID, msgAuthor, msgChannel, msgText;
     // Clean up collections and series URLs - remove everything after the name
