@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import axios from 'axios';
 import { EmbedBuilder } from 'discord.js';
 import { DiscordClient, formattedDate, testEnvironment, userStats, sanitize } from './utilities.js';
 const client = DiscordClient.getInstance();
@@ -38,12 +39,8 @@ async function fetchDataWithHeaders(url, channelID, message) {
     let delay = 1000; // delay in milliseconds
     while (retryCount < maxRetries) {
         try {
-            const response = await fetch(url, { headers });
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            const data = await response.text();
-            const $ = cheerio.load(data);
+            const response = await axios.get(url, { headers });
+            const $ = cheerio.load(response.data);
             // Delete the retry message after a successful fetch
             if (retryMessage) {
                 await retryMessage.delete();
@@ -51,11 +48,18 @@ async function fetchDataWithHeaders(url, channelID, message) {
             }
             return $;
         } catch (error) {
-            const errorMessage = error.message.slice(0, 100); 
+            const errorMessage = error.response?.data ? `${error.response.headers.server} ${error.response.status} error` : error.message.slice(0, 100); 
             // Update the retry message with the error
-            console.log(`***Retry index ${retryCount}, delay ${delay} at ${formattedDate()}\n${errorMessage}`);
-            await retryMessage.edit(`Please wait. Processing ${msgText}\nRetry attempt ${retryCount + 1} of ${maxRetries}, delay ${delay}`);
-            await new Promise(resolve => setTimeout(resolve, delay)); 
+            if (error.response && error.response.headers['retry-after']) {
+                const retryAfter = parseInt(error.response.headers['retry-after']);
+                console.log(`***Retry index ${retryCount} at ${formattedDate()}: Retrying in ${retryAfter} seconds...\n${errorMessage}`);
+                await retryMessage.edit(`Please wait. Processing ${msgText}\nAO3 is rate limiting. Retrying in ${retryAfter} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+            } else {
+                console.log(`***Retry index ${retryCount}, delay ${delay} at ${formattedDate()}\n${errorMessage}`);
+                await retryMessage.edit(`Please wait. Processing ${msgText}\nRetry attempt ${retryCount + 1} of ${maxRetries}, delay ${delay}`);
+                await new Promise(resolve => setTimeout(resolve, delay)); 
+            }
             // If it's any server error (5xx), double the delay and increase max retries
             if (/5\d{2}/.test(String(error))) { 
                 delay *= 2;
