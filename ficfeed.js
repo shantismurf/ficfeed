@@ -405,11 +405,12 @@ export async function buildEmbed(linkURL, message) {
                         inline: true
                     });
                 if (test) console.log(`06-category: ${ao3.workCategory}`);
-                responseText.addFields( //blank field to make two column line break
+ /*               responseText.addFields( //blank field to make two column line break
                     {
                         name: '\t',
                         value: '\t'
                     });
+*/
                 responseText.addFields(
                     {
                         name: 'Relationship',
