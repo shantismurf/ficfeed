@@ -565,9 +565,11 @@ export async function buildEmbed(linkURL, message) {
         console.log(`***Link type: ${linkType}: ${linkURL} processed at ${formattedDate()}.`);
 
         // create base message, preserve its options, 
-        // then add the silent flag if it is set
-        const msgForFeed = { embeds: [responseText] };
-        if (silentFlag) msgForFeed.silent = true;
+        // then add the silent flag if it is set...SuppressNotifications = 4096
+        const msgForFeed = { 
+             embeds: [responseText],
+             flags: silentFlag ? [4096] : [0]
+};
 
         //send the message, divert or duplicate to the adultFeedChannel
         if (linkType === 'work') {
