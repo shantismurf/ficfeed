@@ -33,7 +33,8 @@ export async function fetchDataWithHeaders(url, channelID, message) {
         msgText = `wordcount for <${url}>`;
     }
     const headers = { 'User-Agent': 'ficfeed: link aggregating Discord bot developed by shantismurf@gmail.com' };
-    let retryMessage = await feedChannel.send(`Please wait. Processing ${msgText}`);
+    // send wait message silently...SuppressNotifications = 4096
+    let retryMessage = await feedChannel.send({ content: `Please wait. Processing ${msgText}`, flags: [4096] });
     let retryCount = 0;
     let maxRetries = 5;
     let delay = 1000; // delay in milliseconds
