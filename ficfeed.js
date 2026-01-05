@@ -26,11 +26,11 @@ export async function fetchDataWithHeaders(url, channelID, message) {
         msgAuthor = message.author.displayName;
         msgChannel = message.channel.id;
         msgText = `\n<${url}> posted by ${msgAuthor} in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}`;
-    } else { //wordcount command does not pass a message object
+    } else { //wordcount and ytd count processes do not pass a message object
         msgID = '';
         msgAuthor = '';
         msgChannel = feedChannel;
-        msgText = `wordcount for <${url}>`;
+        msgText = `count for <${url}>`;
     }
     const headers = { 'User-Agent': 'ficfeed: link aggregating Discord bot developed by shantismurf@gmail.com' };
     // send wait message silently...SuppressNotifications = 4096

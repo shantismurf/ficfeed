@@ -1,6 +1,6 @@
-import {Collection, Events, EmbedBuilder} from 'discord.js';
+import { Collection, Events } from 'discord.js';
 import { buildEmbed } from './ficfeed.js';
-import { DiscordClient, sanitize, userStats, formattedDate, testEnvironment } from './utilities.js';
+import { DiscordClient, formattedDate, testEnvironment } from './utilities.js';
 import fs from 'fs';
 import config from './config.json' with { type: 'json' };
 const test = testEnvironment(); //set in utilities.js
