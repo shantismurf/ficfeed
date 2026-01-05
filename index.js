@@ -69,11 +69,23 @@ client.on('messageCreate', async message => {
             let prefix = linkMatch[1]; // get the two characters before the URL
             if (['_ _ ', ' _ <'].includes(prefix)) { //if they match a skip prefix
                 console.log(`***Skip Prefix posted in https://discord.com/channels/${GUILD}/${msgChannel}/${msgID}: "${prefix}" used to skip link ${url} at ${formattedDate()}`);
-            } else { //process the url normally
-                console.log(`***Link match at ${formattedDate()}: ${url}`);
+            } else { //process the url 
+                if (url.includes('collections') && url.includes('works')) { //rebuild url with work ID for collection work links
+                    url = new URL(url);
+                	const matchWork = url.pathname.match(/\/works\/(\d+)/);
+                	const workId = matchWork[1];
+                	url = `${url.origin}/works/${workId}`;
+            	}
+                console.log(`***Link with prefix match at ${formattedDate()}: ${url}`);
                 await buildEmbed(url, message);
             }
         } else { //no characters before url, process normally
+		    if (url.includes('collections') && url.includes('works')) { //rebuild url with work ID for collection work links
+                url = new URL(url);
+               	const matchWork = url.pathname.match(/\/works\/(\d+)/);
+               	const workId = matchWork[1];
+               	url = `${url.origin}/works/${workId}`;
+            }
             console.log(`***Link match at ${formattedDate()}: ${url}`);
             await buildEmbed(url, message);
         }

@@ -33,7 +33,8 @@ export async function fetchDataWithHeaders(url, channelID, message) {
         msgText = `wordcount for <${url}>`;
     }
     const headers = { 'User-Agent': 'ficfeed: link aggregating Discord bot developed by shantismurf@gmail.com' };
-    let retryMessage = await feedChannel.send(`Please wait. Processing ${msgText}`);
+    // send wait message silently...SuppressNotifications = 4096
+    let retryMessage = await feedChannel.send({ content: `Please wait. Processing ${msgText}`, flags: [4096] });
     let retryCount = 0;
     let maxRetries = 5;
     let delay = 1000; // delay in milliseconds
@@ -405,11 +406,12 @@ export async function buildEmbed(linkURL, message) {
                         inline: true
                     });
                 if (test) console.log(`06-category: ${ao3.workCategory}`);
-                responseText.addFields( //blank field to make two column line break
+ /*               responseText.addFields( //blank field to make two column line break
                     {
                         name: '\t',
                         value: '\t'
                     });
+*/
                 responseText.addFields(
                     {
                         name: 'Relationship',
@@ -564,9 +566,11 @@ export async function buildEmbed(linkURL, message) {
         console.log(`***Link type: ${linkType}: ${linkURL} processed at ${formattedDate()}.`);
 
         // create base message, preserve its options, 
-        // then add the silent flag if it is set
-        const msgForFeed = { embeds: [responseText] };
-        if (silentFlag) msgForFeed.silent = true;
+        // then add the silent flag if it is set...SuppressNotifications = 4096
+        const msgForFeed = { 
+             embeds: [responseText],
+             flags: silentFlag ? [4096] : [0]
+};
 
         //send the message, divert or duplicate to the adultFeedChannel
         if (linkType === 'work') {
