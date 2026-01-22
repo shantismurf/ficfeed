@@ -103,7 +103,7 @@ export class DiscordClient { // Create a new client instance
         return DiscordClient.instance;
     }
 }
-
+/*
 import cron from 'node-cron';
 // Schedule a task to run on the 1st and 15th at midnight CST
 //cron.schedule('0 0 1,15 * *', async () => {
@@ -115,6 +115,7 @@ cron.schedule('50 15 5 1 *', async () => {
   scheduled: true,
   timezone: "America/Chicago"
 });
+*/
 const ArchiveStatsChannel = config.ARCHIVESTATSCHANNEL;
 const client = DiscordClient.getInstance();
 import { fetchDataWithHeaders } from './ficfeed.js';
