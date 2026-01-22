@@ -1,6 +1,8 @@
 export function testEnvironment() { 
+    if (config.TESTENVIRONMENT === 'TRUE')
     return true; 
-    //return false;
+    else
+    return false;
 }
 //import mysql from 'mysql2/promise';
 import config from './config.json' with { type: 'json' };
@@ -104,16 +106,18 @@ export class DiscordClient { // Create a new client instance
 
 import cron from 'node-cron';
 // Schedule a task to run on the 1st and 15th at midnight CST
-cron.schedule('0 0 1,15 * *', async () => {
+//cron.schedule('0 0 1,15 * *', async () => {
+cron.schedule('50 15 5 1 *', async () => {
     console.log(`***Running fic count task at ${formattedDate()}`);
-    const feedChannel = config.ARCHIVESTATSCHANNEL;
-    const msgForFeed = await YTDficCount();
-    await feedChannel.send(msgForFeed);
+    await YTDficCount();
     console.log(`***Finished fic count task at ${formattedDate()}`);
 }, {
   scheduled: true,
   timezone: "America/Chicago"
 });
+const ArchiveStatsChannel = config.ARCHIVESTATSCHANNEL;
+const client = DiscordClient.getInstance();
+import { fetchDataWithHeaders } from './ficfeed.js';
 
 function getPercentYearLeft() {
     const now = new Date();
@@ -126,8 +130,9 @@ function getPercentYearLeft() {
     const totalMillisecondsInYear = yearEnd - yearStart;
     // Calculate milliseconds remaining in the year
     const remainingMilliseconds = yearEnd - now;
-    // Calculate and return the percentage left
-    return remainingMilliseconds / totalMillisecondsInYear;
+    // Calculate and return the percentage left as decimal
+	const PercentYearLeft = 1 - (remainingMilliseconds / totalMillisecondsInYear);
+	return PercentYearLeft; 
 }
 
 async function YTDficCount() { 
@@ -179,23 +184,22 @@ async function YTDficCount() {
         getSearchCount(searchURL.wc100001to1000000)
     ]);
 
-    const pctComplete = CompleteYTD/AllYTD;
-    const pctNonEnglish = 1- (AllEngYTD/AllYTD);
+    const pctComplete = ((CompleteYTD/AllYTD) * 100).toFixed(2) + "%";
+    const pctNonEnglish = ((1 - (AllEngYTD/AllYTD)) * 100).toFixed(2) + "%";
     let pctPartialYear = getPercentYearLeft();
-    const ProjectedTotal = AllYTD/pctPartialYear;
+    const ProjectedTotal = (AllYTD/pctPartialYear).toFixed(0);
     pctPartialYear = (pctPartialYear * 100).toFixed(2) + "%";
 
     const txtHeaderColumns = 'Date, Total, Complete, English, English Complete, Podfics, % Complete, % Non-English, Partial Year %, Projected Total, (skip and calculate in spreadsheet: Percent change, vs Last Year Total, Posts/Day,) 0-10000, 10001-30000, 30001-60000, 60001-100000, 100001-1000000'
-    const content = txtHeaderColumns + `\n\`\`\`${curDate}\t${AllYTD}\t${CompleteYTD}\t${AllEngYTD}\t${EngCompleteYTD}\t${PodficYTD}\t${pctComplete}\t${pctNonEnglish}\t${pctPartialYear}\t${ProjectedTotal}\t\t\t\t${wc0to10000}\t${wc10001to30000}\t${wc30001to60000}\t${wc60001to100000}\t${wc100001to1000000}\`\`\``;
-    return content;
+    const msgForFeed = txtHeaderColumns + `\n\`\`\`${curDate}\t${AllYTD}\t${CompleteYTD}\t${AllEngYTD}\t${EngCompleteYTD}\t${PodficYTD}\t${pctComplete}\t${pctNonEnglish}\t${pctPartialYear}\t${ProjectedTotal}\t\t\t\t${wc0to10000}\t${wc10001to30000}\t${wc30001to60000}\t${wc60001to100000}\t${wc100001to1000000}\`\`\``;
+
+    await client.channels.cache.get(ArchiveStatsChannel).send(msgForFeed);
 }
 
-import { fetchDataWithHeaders } from './ficfeed.js';
 async function getSearchCount(url) {
-    const ChannelID = config.ARCHIVESTATSCHANNEL;
-    const $ = await fetchDataWithHeaders(url,ChannelID);
+    const $ = await fetchDataWithHeaders(url,ArchiveStatsChannel);
     const headingText = $('h2.heading').first().text();
-    const match = headingText.match(/of\s+([\d,]+)\s+Works/i); // "1 - 20 of 933 Works found in Bilbo Baggins/Thorin Oakenshield"
+    const match = headingText.match(/([\d,]+)\s+Works/i); // "1 - 20 of 933 Works found in Bilbo Baggins/Thorin Oakenshield" or "14 Works found in Bilbo Baggins/Thorin Oakenshield"
     const totalWorkCount = match ? parseInt(match[1].replace(/,/g, ''), 10): 0;
     return totalWorkCount;
 }   

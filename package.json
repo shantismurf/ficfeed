@@ -12,12 +12,15 @@
   "description": "",
   "dependencies": {
     "axios": "^1.7.7",
+    "axios-cookiejar-support": "^6.0.5",
     "cheerio": "^1.0.0",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "glob": "^11.0.1"
+    "glob": "^11.0.1",
+    "tough-cookie": "^6.0.0"
   },
   "devDependencies": {
-    "eslint": "^9.14.0"
+    "eslint": "^9.14.0",
+    "node-cron": "^4.2.1"
   }
 }
