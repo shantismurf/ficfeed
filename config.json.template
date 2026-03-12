@@ -6,6 +6,8 @@
   "ADULTFEEDID": "your_production_adult_channel_id_here",
   "TESTADULTFEEDID": "your_test_adult_channel_id_here",
   "GUILD": "your_guild_id_here",
+  "CLIENTID": "your_client_id_here",
+  "TESTCLIENTID": "your_testclient_id_here",
   "ARCHIVESTATSCHANNEL": "your_archivestats_channel_id_here",
   "TESTENVIRONMENT": "Must be TRUE or FALSE"
 }

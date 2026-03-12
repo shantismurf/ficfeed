@@ -1,12 +1,10 @@
-import { Collection, Events } from 'discord.js';
+import { Collection, Events, REST, Routes } from 'discord.js';
 import { buildEmbed } from './ficfeed.js';
 import { DiscordClient, formattedDate, testEnvironment } from './utilities.js';
 import fs from 'fs';
 import config from './config.json' with { type: 'json' };
 const test = testEnvironment(); //set in utilities.js
-const FEEDID = test ? config.TESTFEEDID : config.FEEDID;
-const ADULTFEEDID = test ? config.TESTADULTFEEDID : config.ADULTFEEDID;
-//const BOTUSERID = test ? config.TESTCLIENTID : config.CLIENTID;
+const CLIENTID = test ? config.TESTCLIENTID : config.CLIENTID;
 const TOKEN = test ? config.TESTTOKEN : config.TOKEN;
 const GUILD = config.GUILD;
 // Create a new client instance
@@ -39,13 +37,17 @@ async function loadCommands(dir) {
 client.once(Events.ClientReady, async () => {
     console.log(`Ready! Logged in as ${client.user.tag}`);
     await loadCommands('./commands');
+    // Register slash commands with Discord
+    const rest = new REST().setToken(TOKEN);
+    const commandData = [...client.commands.values()].map(cmd => cmd.data.toJSON());
+    await rest.put(Routes.applicationGuildCommands(CLIENTID, GUILD), { body: commandData });
+    console.log(`Registered ${commandData.length} slash command(s).`);
 });
-// Listen for slash commands
+// Load slash commands from the commands directory
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
     console.log(`${formattedDate()}: ${interaction.user.username} in #${interaction.channel.name} triggered ${interaction.commandName}.`);
     try {
-        //client.commands.get(interaction.commandName)?.run(client, interaction);
         const command = interaction.client.commands.get(interaction.commandName);
         await command.execute(interaction);
     } catch (e) {
