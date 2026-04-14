@@ -17,7 +17,8 @@ export default {
     async execute(interaction) {
         const url = interaction.options.getString('url');
         await interaction.deferReply();
-        const channelID = interaction.channel.id; // Get the ID of the channel where the command was sent
+        const channelID = interaction.channel.id;
+        let chapterList = '';
         try {
             // Extract the base URL and append "/navigate"
             const baseUrlMatch = url.match(/(https:\/\/archiveofourown\.org\/works\/\d+)/);
@@ -38,7 +39,7 @@ export default {
 
             // Setup array and message, extract collection of chapter links
             const chapters = [];
-            let chapterList = `## Chapter Index for [${workTitle}](<${workUrl}>) by ${authorName}\n`;;
+            chapterList = `## Chapter Index for [${workTitle}](<${workUrl}>) by ${authorName}\n`;
             const chapterLinks = $('ol.chapter.index.group li a');
             let currentMessage = await interaction.editReply({ content: chapterList, fetchReply: true });
             let messageCharCount = currentMessage.content.length;
@@ -85,7 +86,7 @@ export default {
             }
         } catch (error) {
             console.error(`Error fetching AO3 data: `, error);
-            interaction.editReply(`${chapterList}\nAn error occurred while fetching the work. Please try again later.`);
+            await interaction.editReply(`${chapterList}\nAn error occurred while fetching the work. Please try again later.`);
         }
     },
 };

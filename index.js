@@ -1,4 +1,4 @@
-import { Collection, Events, REST, Routes } from 'discord.js';
+import { Collection, Events, REST, Routes, PermissionFlagsBits } from 'discord.js';
 import { buildEmbed } from './ficfeed.js';
 import { DiscordClient, formattedDate, testEnvironment } from './utilities.js';
 import fs from 'fs';
@@ -46,7 +46,22 @@ client.once(Events.ClientReady, async () => {
 // Load slash commands from the commands directory
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
-    console.log(`${formattedDate()}: ${interaction.user.username} in #${interaction.channel.name} triggered ${interaction.commandName}.`);
+
+    if (interaction.channel) {
+        const perms = interaction.channel.permissionsFor(interaction.client.user);
+        const needed = interaction.channel.isThread()
+            ? PermissionFlagsBits.SendMessagesInThreads
+            : PermissionFlagsBits.SendMessages;
+        if (perms && !perms.has(needed)) {
+            await interaction.reply({
+                content: "I don't have permission to send messages in this channel.",
+                ephemeral: true
+            });
+            return;
+        }
+    }
+
+    console.log(`${formattedDate()}: ${interaction.user.username} in #${interaction.channel?.name ?? 'unknown'} triggered ${interaction.commandName}.`);
     try {
         const command = interaction.client.commands.get(interaction.commandName);
         await command.execute(interaction);
