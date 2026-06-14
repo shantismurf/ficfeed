@@ -1,0 +1,45 @@
+{
+    "atmosphere": [
+        "dawn", "dusk", "sunrise", "sunset", "sun", "moon", "stars", "clouds",
+        "threshold", "fog", "ember", "lantern", "shadow", "tide", "ruins",
+        "hollow", "labyrinth", "cellar", "crossroads", "shoreline",
+        "attic", "wilderness", "archive", "corridor", "clearing", "tower"
+    ],
+
+    "objects": [
+        "book", "pen", "pencil", "paper", "ink", "inkwell", "inkpot", "quill",
+        "mirror", "anchor", "clockwork", "veil", "key", "compass", "locket",
+        "manuscript", "mask", "wire", "candle", "map", "lens", "thread",
+        "image", "sigil", "relic", "chain", "parchment", "scroll",
+        "potion", "pouch", "vial", "ointment", "gemstone", "crystal", "runes",
+        "bead", "braid", "clock", "box", "coin", "glasses", "tea pot", "helmet",
+        "belt", "key", "toy", "string", "spoon", "book", "comb", "knife", "chain"
+
+    ],
+
+    "abstract": [
+        "hunger", "fracture", "silence", "echo", "longing", "debt", "mercy",
+        "grief", "spite", "wonder", "dread", "trust", "betrayal", "hope",
+        "obsession", "surrender", "guilt", "pride", "madness", "history",
+        "confidence", "loyalty", "realize", "common", "poem", "honor",
+        "exceed", "contrast"
+    ],
+
+    "nature": [
+        "stone", "water", "fire", "air", "earth", "light", "darkness",
+        "rust", "bloom", "current", "husk", "marrow", "spark", "frost",
+        "ash", "salt", "root", "storm", "decay", "growth", "smoke",
+        "garden", "acorn", "mountain", "mushrooms",    "mouse",
+        "blossom", "freeze", "drift"
+    ],
+
+    "action": [
+        "whisper", "chase", "escape", "search", "capture", "rescue",
+        "pursuit", "bargain", "unraveling", "vigil", "return", "vanishing",
+        "reckoning", "collision", "inheritance", "transformation",
+        "destruction", "recovery", "journey", "protection", "courting",
+        "entertain", "bend", "fold", "routine", "rotate", "slap",
+        "dilute", "bind", "remark", "craft", "prevent", "fall",
+        "paint", "breathe", "repeat", "shop", "translate"
+    ]
+}
