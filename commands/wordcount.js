@@ -91,13 +91,47 @@ export default {
     },
 };
 
+// Word-counting logic ported from AO3's WordCounter (lib/word_counter.rb):
+// counts runs of word characters per text node, after normalizing dashes
+// and stripping apostrophes/hyphens, and counts CJK/Thai characters individually.
+const CHARACTER_COUNT_SCRIPTS = ['Han', 'Hiragana', 'Katakana', 'Thai'];
+const SCRIPT_PATTERN = CHARACTER_COUNT_SCRIPTS.map(script => `\\p{Script=${script}}`).join('|');
+const WORD_PATTERN = new RegExp(
+    `${SCRIPT_PATTERN}|(?:(?!${SCRIPT_PATTERN})[\\p{L}\\p{Nd}\\p{M}\\p{Pc}])+`,
+    'gu'
+);
+
+function countTextNodeWords(text) {
+    // -- becomes an emdash (so "one--two" still counts as 2 words), then
+    // apostrophes/hyphens are dropped (so "one-word" and "one's" count as 1 word)
+    const normalized = text.replace(/--/g, '—').replace(/['’‘-]/g, '');
+    return (normalized.match(WORD_PATTERN) || []).length;
+}
+
+// Recursively sum word counts across all text nodes, since AO3 counts each
+// text node independently (so markup splitting a word counts it twice)
+function countWords(element) {
+    let total = 0;
+    function traverse(node) {
+        if (node.type === 'text') {
+            total += countTextNodeWords(node.data);
+        } else if (node.children) {
+            node.children.forEach(traverse);
+        }
+    }
+    element.each((_, el) => traverse(el));
+    return total;
+}
+
 // Helper function to fetch word count for a single chapter
 async function fetchChapterWordCount(url, channelID) {
     try {
         const $ = await fetchDataWithHeaders(url, channelID);
         const article = $('div[role=article]');
-        const wordCount = article.text().trim().split(/\s+/).length;
-        return wordCount;
+        // Remove the "Chapter Text" landmark heading, which is part of the
+        // page template rather than the chapter content AO3 counts
+        article.find('h3.landmark.heading').remove();
+        return countWords(article);
     } catch (error) {
         console.error(`Error fetching chapter word count for ${url}: ${error}`);
         return 0; // Return 0 if there's an error
