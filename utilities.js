@@ -70,7 +70,7 @@ export function userStats() {
     Tags may be up to 100 characters long and can include characters from most languages, numbers, spaces, and some punctuation.
     */
     let userStats = {};
-    userStats.processAdultLinks = 2;
+    userStats.processAdultLinks = 1;
     //processAdultLinks: 
     // 1 = post all links to the regular feedChannel, 
     // 2 = post adult links to both the regular channel and the adult channel, 
@@ -103,104 +103,3 @@ export class DiscordClient { // Create a new client instance
         return DiscordClient.instance;
     }
 }
-/*
-import cron from 'node-cron';
-// Schedule a task to run on the 1st and 15th at midnight CST
-//cron.schedule('0 0 1,15 * *', async () => {
-cron.schedule('50 15 5 1 *', async () => {
-    console.log(`***Running fic count task at ${formattedDate()}`);
-    await YTDficCount();
-    console.log(`***Finished fic count task at ${formattedDate()}`);
-}, {
-  scheduled: true,
-  timezone: "America/Chicago"
-});
-*/
-const ArchiveStatsChannel = config.ARCHIVESTATSCHANNEL;
-const client = DiscordClient.getInstance();
-import { fetchDataWithHeaders } from './ficfeed.js';
-
-function getPercentYearLeft() {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    // Set the start of the current year (January 1st, 00:00:00)
-    const yearStart = new Date(currentYear, 0, 1);
-    // Set the end of the current year (January 1st of next year, 00:00:00)
-    const yearEnd = new Date(currentYear + 1, 0, 1);
-    // Calculate total milliseconds in the year
-    const totalMillisecondsInYear = yearEnd - yearStart;
-    // Calculate milliseconds remaining in the year
-    const remainingMilliseconds = yearEnd - now;
-    // Calculate and return the percentage left as decimal
-	const PercentYearLeft = 1 - (remainingMilliseconds / totalMillisecondsInYear);
-	return PercentYearLeft; 
-}
-
-async function YTDficCount() { 
-    const now = new Date();
-    const curYear = now.getFullYear();
-    const curDate = now.toLocaleDateString('en-US');
-    let searchURL = {};
-    const base =
-        `https://archiveofourown.org/works?` +
-        `work_search%5Bquery%5D=created_at%3A%5B%22${curYear}-01-01%22+TO+%22${curYear}-12-31%22%5D` +
-        `&tag_id=Bilbo+Baggins*s*Thorin+Oakenshield`;
-    searchURL.AllYTD = base;
-    searchURL.CompleteYTD = `${base}&work_search%5Bcomplete%5D=T`;
-    searchURL.AllEngYTD = `${base}&work_search%5Blanguage_id%5D=en`;
-    searchURL.EngCompleteYTD = `${base}&work_search%5Bcomplete%5D=T&work_search%5Blanguage_id%5D=en`;
-    searchURL.podficYTD = `${base}&work_search%5Bother_tag_names%5D=Podfic`;
-    const ranges = [
-        [0, 10000],
-        [10001, 30000],
-        [30001, 60000],
-        [60001, 100000],
-        [100001, 1000000]
-        ];
-    for (const [wordsFrom, wordsTo] of ranges) {
-        const key = `wc${wordsFrom}to${wordsTo}`;
-        searchURL[key] = base + '&work_search%5Bwords_from%5D=' + wordsFrom + '&work_search%5Bwords_to%5D=' + wordsTo;
-    }
-    const [
-        AllYTD,
-        CompleteYTD,
-        AllEngYTD,
-        EngCompleteYTD,
-        PodficYTD,
-        wc0to10000, 
-        wc10001to30000, 
-        wc30001to60000, 
-        wc60001to100000, 
-        wc100001to1000000
-    ] = await Promise.all([
-        getSearchCount(searchURL.AllYTD),
-        getSearchCount(searchURL.CompleteYTD),
-        getSearchCount(searchURL.AllEngYTD),
-        getSearchCount(searchURL.EngCompleteYTD),
-        getSearchCount(searchURL.podficYTD),
-        getSearchCount(searchURL.wc0to10000),
-        getSearchCount(searchURL.wc10001to30000),
-        getSearchCount(searchURL.wc30001to60000),
-        getSearchCount(searchURL.wc60001to100000),
-        getSearchCount(searchURL.wc100001to1000000)
-    ]);
-
-    const pctComplete = ((CompleteYTD/AllYTD) * 100).toFixed(2) + "%";
-    const pctNonEnglish = ((1 - (AllEngYTD/AllYTD)) * 100).toFixed(2) + "%";
-    let pctPartialYear = getPercentYearLeft();
-    const ProjectedTotal = (AllYTD/pctPartialYear).toFixed(0);
-    pctPartialYear = (pctPartialYear * 100).toFixed(2) + "%";
-
-    const txtHeaderColumns = 'Date, Total, Complete, English, English Complete, Podfics, % Complete, % Non-English, Partial Year %, Projected Total, (skip and calculate in spreadsheet: Percent change, vs Last Year Total, Posts/Day,) 0-10000, 10001-30000, 30001-60000, 60001-100000, 100001-1000000'
-    const msgForFeed = txtHeaderColumns + `\n\`\`\`${curDate}\t${AllYTD}\t${CompleteYTD}\t${AllEngYTD}\t${EngCompleteYTD}\t${PodficYTD}\t${pctComplete}\t${pctNonEnglish}\t${pctPartialYear}\t${ProjectedTotal}\t\t\t\t${wc0to10000}\t${wc10001to30000}\t${wc30001to60000}\t${wc60001to100000}\t${wc100001to1000000}\`\`\``;
-
-    await client.channels.cache.get(ArchiveStatsChannel).send(msgForFeed);
-}
-
-async function getSearchCount(url) {
-    const $ = await fetchDataWithHeaders(url,ArchiveStatsChannel);
-    const headingText = $('h2.heading').first().text();
-    const match = headingText.match(/([\d,]+)\s+Works/i); // "1 - 20 of 933 Works found in Bilbo Baggins/Thorin Oakenshield" or "14 Works found in Bilbo Baggins/Thorin Oakenshield"
-    const totalWorkCount = match ? parseInt(match[1].replace(/,/g, ''), 10): 0;
-    return totalWorkCount;
-}   
