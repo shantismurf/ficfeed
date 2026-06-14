@@ -75,7 +75,7 @@ export default {
                 return;
             }
             const totalWords = chapters.reduce((sum, chapter) => sum + chapter.words, 0);
-            const totalWordsMsg = `\nTotal Word Count: ${totalWords} words\n-# (may not exactly match AO3 count)\n--------`;
+            const totalWordsMsg = `\nTotal Word Count: ${totalWords} words\n--------`;
             chapterList += totalWordsMsg;
 
             // Post the total word count, alone in a new message if needed
