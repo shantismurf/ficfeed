@@ -33,23 +33,28 @@ export async function fetchDataWithHeaders(url, channelID, message) {
         msgText = `count for <${url}>`;
     }
     const headers = { 'User-Agent': 'ficfeed: link aggregating Discord bot developed by shantismurf@gmail.com' };
-    // send wait message silently...SuppressNotifications = 4096
-    let retryMessage = await feedChannel.send({ content: `Please wait. Processing ${msgText}`, flags: [4096] });
+    // wait message is only sent if a retry is needed, to avoid a Discord
+    // send+delete round trip on every successful fetch
+    let retryMessage = null;
     let retryCount = 0;
     let maxRetries = 5;
     let delay = 1000; // delay in milliseconds
     while (retryCount < maxRetries) {
         try {
-            const response = await axios.get(url, { headers });
+            const response = await axios.get(url, { headers, timeout: 20000 });
             const $ = cheerio.load(response.data);
-            // Delete the retry message after a successful fetch
+            // Delete the retry message if one was sent for an earlier failed attempt
             if (retryMessage) {
                 await retryMessage.delete();
                 console.log(`***Erased wait message at ${formattedDate()}`);
             }
             return $;
         } catch (error) {
-            const errorMessage = error.response?.data ? `${error.response.headers.server} ${error.response.status} error` : error.message.slice(0, 100); 
+            const errorMessage = error.response?.data ? `${error.response.headers.server} ${error.response.status} error` : error.message.slice(0, 100);
+            // send wait message silently...SuppressNotifications = 4096
+            if (!retryMessage) {
+                retryMessage = await feedChannel.send({ content: `Please wait. Processing ${msgText}`, flags: [4096] });
+            }
             // Update the retry message with the error
             if (error.response && error.response.headers['retry-after']) {
                 const retryAfter = parseInt(error.response.headers['retry-after']);
